@@ -1,0 +1,26 @@
+{
+  "files": {
+    "main.css": "/mergin_mode/static/css/main.25875f71.chunk.css",
+    "main.js": "/mergin_mode/static/js/main.6fbf6b7c.chunk.js",
+    "main.js.map": "/mergin_mode/static/js/main.6fbf6b7c.chunk.js.map",
+    "runtime-main.js": "/mergin_mode/static/js/runtime-main.4fc5cf2a.js",
+    "runtime-main.js.map": "/mergin_mode/static/js/runtime-main.4fc5cf2a.js.map",
+    "static/css/2.64a99b10.chunk.css": "/mergin_mode/static/css/2.64a99b10.chunk.css",
+    "static/js/2.46358f2a.chunk.js": "/mergin_mode/static/js/2.46358f2a.chunk.js",
+    "static/js/2.46358f2a.chunk.js.map": "/mergin_mode/static/js/2.46358f2a.chunk.js.map",
+    "index.html": "/mergin_mode/index.html",
+    "precache-manifest.a15fa533e0a09f586700d15afc5edeba.js": "/mergin_mode/precache-manifest.a15fa533e0a09f586700d15afc5edeba.js",
+    "service-worker.js": "/mergin_mode/service-worker.js",
+    "static/css/2.64a99b10.chunk.css.map": "/mergin_mode/static/css/2.64a99b10.chunk.css.map",
+    "static/css/main.25875f71.chunk.css.map": "/mergin_mode/static/css/main.25875f71.chunk.css.map",
+    "static/js/2.46358f2a.chunk.js.LICENSE": "/mergin_mode/static/js/2.46358f2a.chunk.js.LICENSE",
+    "static/media/logo.svg": "/mergin_mode/static/media/logo.5d5d9eef.svg"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.4fc5cf2a.js",
+    "static/css/2.64a99b10.chunk.css",
+    "static/js/2.46358f2a.chunk.js",
+    "static/css/main.25875f71.chunk.css",
+    "static/js/main.6fbf6b7c.chunk.js"
+  ]
+}
