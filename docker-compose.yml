@@ -1,0 +1,15 @@
+version: '3.3'
+
+services:
+  mergin_mode:
+    container_name: mergin_mode
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - '.:/app'
+      - '/app/node_modules'
+    ports:
+      - '3001:3000'
+    environment:
+      - NODE_ENV=production
