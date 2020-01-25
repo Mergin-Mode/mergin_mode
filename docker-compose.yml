@@ -14,4 +14,7 @@ services:
     environment:
       - NODE_ENV=production
     networks:
-      - nginx-network
+      - polyhedron_nginx-network
+networks:
+  polyhedron_nginx-network:
+    external: true
