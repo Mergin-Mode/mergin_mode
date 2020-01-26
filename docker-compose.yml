@@ -14,7 +14,7 @@ services:
     environment:
       - NODE_ENV=production
     networks:
-      - polyhedron_nginx-network
+      - webapps_nginx-network
 networks:
-  polyhedron_nginx-network:
+  webapps_nginx-network:
     external: true
