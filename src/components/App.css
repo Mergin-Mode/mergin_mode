@@ -1,3 +1,32 @@
+.App-header .navbar {
+  z-index: 10;
+}
+
+.ReactModal__Overlay {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.2) !important;
+}
+.form > div {
+  height: 40px !important;
+  width: 100%;
+}
+.form-control {
+  margin:10px;
+  padding:0;
+  border: none;
+
+}
+.ReactModal__Content {
+  max-width:400px;
+  width: 100%;
+  top:unset !important;
+  left:unset !important;
+  bottom:unset !important;
+  right:unset !important;
+}
+
 .Resizer {
   background: #000;
   opacity: 0.2;

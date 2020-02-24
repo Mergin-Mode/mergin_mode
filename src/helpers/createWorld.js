@@ -1,64 +1,59 @@
-import React,{ useState,useEffect } from 'react';
-import logo from './logo.svg';
-import './App.css';
-import {
-  Collapse,
-  Navbar,
-  NavbarToggler,
-  NavbarBrand,
-  Nav,
-  NavItem,
-  NavLink,
-  UncontrolledDropdown,
-  DropdownToggle,
-  DropdownMenu,
-  DropdownItem,
-  NavbarText
-} from 'reactstrap';
-import SplitPane from 'react-split-pane';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js';
 
-function App() {
-   const [isOpen, setIsOpen] = useState(false);
+FBXLoader.prototype.load2 = function(files, callback) {
+    var scope = this;
+    var file = files[0];
 
-  const toggle = () => setIsOpen(!isOpen);
-  useEffect(()=>{
+    var reader = new FileReader();
 
-   
+    reader.onload = function(event) {
+        if (event.target.readyState === 2 || event.target.status === 0) {
+            var geometry = scope.parse(event.target.result || event.target.responseText);
 
-      var camera, controls, scene, renderer,helper,plane;
+            if (callback)
+                callback(geometry);
+
+        } else {
+
+            // scope.dispatchEvent({type: 'error', message: 'Couldn\'t load URL [' + url + ']', response: event.target.readyState});
+
+        }
+    };
+
+    reader.readAsArrayBuffer(file);
+
+};
+
+export default function	createWorld(camera,controls,scene,renderer,pointer,partials,loaders,rendererContainer) {
+	loaders.FBXLoader = FBXLoader;
+	var clock = new THREE.Clock();
       var raycaster = new THREE.Raycaster();
       var mouse = new THREE.Vector2();
 
-      init();
+      // init();
       //render(); // remove when using next line for animation loop (requestAnimationFrame)
-      animate();
-
-      function init() {
 
         
-const generateTerrain = (g /*,m, e*/) => {
-  const pos = g.getAttribute("position");
-  const pa = pos.array;
+        const generateTerrain = (g /*,m, e*/) => {
+          const pos = g.getAttribute("position");
+          const pa = pos.array;
 
-  const hVerts = g.parameters.width;
-  const wVerts = g.parameters.height;
-  let prev = 0;
-  for (let j = 0; j < hVerts; j++) {
-    for (let i = 0; i < wVerts; i++) {
-      Math.random() > 0.5 ? (pa[3 * (j * wVerts + i) + 2] = prev + Math.random() * 3) :
-      (pa[3 * (j * wVerts + i) + 2] = prev - Math.random() * 3) ;
-      prev = pa[3 * (j * wVerts + i) + 2];
-    }
-  }
-  pos.needsUpdate = true;
-  g.computeVertexNormals();
-};
+          const hVerts = g.parameters.width;
+          const wVerts = g.parameters.height;
+          for (let j = 0; j < hVerts; j++) {
+            for (let i = 0; i < wVerts; i++) {
+              pa[3 * (j * wVerts + i) + 2] = /*Math.random()*/0 
+            }
+          }
+          pos.needsUpdate = true;
+          g.computeVertexNormals();
+        };
 
 
         scene = new THREE.Scene();
-        // scene.background = new THREE.Color( 0xffffff );
+        scene.background = new THREE.Color( 0x0000ff );
         // scene.fog = new THREE.FogExp2( 0xcccccc, 0.002 );
         renderer = new THREE.WebGLRenderer( { antialias: true } );
         renderer.setPixelRatio( window.devicePixelRatio );
@@ -68,8 +63,8 @@ const generateTerrain = (g /*,m, e*/) => {
 
 
         document.getElementById("three-map").appendChild( renderer.domElement );
-        camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 10000 );
-        camera.position.set( 2000, 2000, 400 );
+        camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 1000 );
+        camera.position.set( 20, 20, 20 );
         camera.up.set(0,0,1);
         // controls
         controls = new OrbitControls( camera, renderer.domElement );
@@ -77,8 +72,8 @@ const generateTerrain = (g /*,m, e*/) => {
         controls.enableDamping = true; // an animation loop is required when either damping or auto-rotation are enabled
         controls.dampingFactor = 0.05;
         controls.screenSpacePanning = false;
-        controls.minDistance = 100;
-        // controls.maxDistance = 500;
+        controls.minDistance = 10;
+        controls.maxDistance = 500;
         controls.maxPolarAngle = Math.PI / 2;
         // world
         var geometry = new THREE.PlaneBufferGeometry( 1000, 1000, 100, 100 );
@@ -88,13 +83,19 @@ const generateTerrain = (g /*,m, e*/) => {
 
         material.flatShading = true
 
-        plane = new THREE.Mesh( geometry, material );
+        const plane = new THREE.Mesh( geometry, material );
         plane.position.set( 0, 0, 0 );
 
         plane.castShadow = true;
         plane.receiveShadow = true;
 
+        // var geometry = new THREE.SphereGeometry( 1, 32, 32 );
+        // var material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
+        // helper = new THREE.Mesh( geometry, material );
+        // scene.add( helper );
+
         scene.add( plane );
+
 
         // var geometry = new THREE.CylinderBufferGeometry( 0, 10, 30, 4, 1 );
         // var material = new THREE.MeshPhongMaterial( { color: 0xffffff, flatShading: true } );
@@ -109,19 +110,19 @@ const generateTerrain = (g /*,m, e*/) => {
         // }
         // lights
         var light = new THREE.DirectionalLight( 0xffffff );
-        light.position.set( 1000, 1000, 1000 );
+        light.position.set( 1, 1, 100 );
         light.shadow = {
-        camera: {
-          near: 0.5,
-          far: 300,
-          left: -50,
-          bottom: -50,
-          right: 50,
-          top: 50
-        },
-        bias: 0.0001,
-        mapSize: { x: 1024 * 6, y: 1024 * 6 }
-      };
+          camera: {
+            near: 0.5,
+            far: 300,
+            left: -50,
+            bottom: -50,
+            right: 50,
+            top: 50
+          },
+          bias: 0.0001,
+          mapSize: { x: 1024 * 6, y: 1024 * 6 }
+        };
         scene.add( light );
         
 
@@ -133,28 +134,24 @@ const generateTerrain = (g /*,m, e*/) => {
         scene.add( light );
 
 
- var lhelper = new THREE.DirectionalLightHelper( light, 5 );
+        var lhelper = new THREE.DirectionalLightHelper( light, 5 );
         scene.add( lhelper );        
 
         var light = new THREE.AmbientLight( 0x666666 );
         scene.add( light );
 
 
-        var geometry = new THREE.SphereGeometry( 5, 32, 32 );
+        var geometry = new THREE.SphereGeometry( 1, 32, 32 );
         var material = new THREE.MeshBasicMaterial( {color: 0xff0000} );
-        helper = new THREE.Mesh( geometry, material );
-        scene.add( helper );
+        pointer = new THREE.Mesh( geometry, material );
+        scene.add( pointer );
 
-        //
-        window.addEventListener( 'resize', onWindowResize, false );
-        window.addEventListener( 'mousemove', onMouseMove, false );
+        // var geometry = new THREE.SphereGeometry( 1, 32, 32 );
+        // var material = new THREE.MeshBasicMaterial( {color: 0xffffff} );
+        // var test = new THREE.Mesh( geometry, material );
+        // scene.add( test );
 
-      }
-
-       
-
-      function onMouseMove( event ) {
-
+        function onMouseMove( event ) {
         // calculate mouse position in normalized device coordinates
         // (-1 to +1) for both components
         const el = document.getElementById("three-map").getBoundingClientRect()
@@ -171,73 +168,38 @@ const generateTerrain = (g /*,m, e*/) => {
         // Toggle rotation bool for meshes that we clicked
         if ( intersects.length > 0 ) {
 
-          helper.position.set( 0, 0, 0 );
-          helper.lookAt( intersects[ 0 ].face.normal );
+          pointer.position.set( 0, 0, 0 );
+          pointer.lookAt( intersects[ 0 ].face.normal );
 
-          helper.position.copy( intersects[ 0 ].point );
+          pointer.position.copy( intersects[ 0 ].point );
 
         }
-      }
 
-
+}
       function onWindowResize() {
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
         renderer.setSize( window.innerWidth, window.innerHeight );
       }
+
       function animate() {
         requestAnimationFrame( animate );
         controls.update(); // only required if controls.enableDamping = true, or if controls.autoRotate = true
         render();
       }
+
       function render() {
+        // var delta = clock.getDelta();
+
+        // if ( mixer ) mixer.update( delta );
         renderer.render( scene, camera );
       }
-  })
-  return (
-    <div className="App">
-      <header className="App-header">
-        <Navbar color="dark" light expand="md">
-          <NavbarBrand href="/">3DRW</NavbarBrand>
-          <NavbarToggler onClick={toggle} />
-          <Collapse isOpen={isOpen} navbar>
-            <Nav className="mr-auto" navbar>
-              <UncontrolledDropdown nav inNavbar>
-                <DropdownToggle nav caret>
-                  File
-                </DropdownToggle>
-                <DropdownMenu right>
-                  <DropdownItem>
-                    New
-                  </DropdownItem>
-                  <DropdownItem>
-                    Open
-                  </DropdownItem>
-                  <DropdownItem divider />
-                </DropdownMenu>
-              </UncontrolledDropdown>
-              <NavItem>
-                <NavLink href="https://github.com/reactstrap/reactstrap">GitHub</NavLink>
-              </NavItem>
-            </Nav>
-            <NavbarText>3drw</NavbarText>
-          </Collapse>
-        </Navbar>
-      </header>
-      <main>
-        <SplitPane split="horizontal" minSize={50} defaultSize={500}>
-          <div>
-            <SplitPane split="vertical" minSize={50} defaultSize={100}>
-              <div />
-              <div id = "three-map" />
-            </SplitPane>
-          </div>
-          <div />
-        </SplitPane>
 
-      </main>
-    </div>
-  );
-}
+      animate();
+       
+      window.addEventListener( 'resize', onWindowResize, false );
+      window.addEventListener( 'mousedown', onMouseMove, false );
 
-export default App;
+      partials = {plane,pointer};
+      return {camera,controls,scene,renderer,pointer,partials,loaders}
+} 
