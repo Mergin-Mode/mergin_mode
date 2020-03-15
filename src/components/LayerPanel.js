@@ -7,24 +7,44 @@ import './LayerPanel.css';
 import Tree, { TreeNode } from "rc-tree";
 import ColorPicker from "./layout/ColorPicker";
 import { SketchPicker } from 'react-color';
+import { connect } from "react-redux";
+import {changeSection} from "../actions";
 
 const treeData = [
   {
-    key: '0-0',
+    key: '0',
+    title: 'Models',
+    checkable:false,
+    selectable:true,
+    children: [
+
+    ],
+  },
+  {
+    key: '1',
     title: 'Scene',
     checkable:false,
     selectable:false,
     children: [
-      { key: '0-0-0', title: 'Background',checkable:false,selectable:false,children: [{ key: '0-0-0-0', title: 'Color'},{ key: '0-0-0-1', title: 'Image' },{ key: '0-0-0-2', title: 'Video' }] },
       {
-        key: '0-0-1',
+        key: '1-0',
+        title: 'Background',
+        checkable:false,
+        selectable:false,
+        children: [
+        { key: '1-0-0', title: 'Color'},
+        { key: '1-0-1', title: 'Image' },
+        { key: '1-0-2', title: 'Video' }
+      ] },
+      {
+        key: '1-1',
         title: 'Ground',
         checkable:false,
         selectable:false,
         children: [
-          { key: '0-0-1-0', title: 'Color'},
-          { key: '0-0-1-1', title: 'Image' },
-          { key: '0-0-1-2', title: 'Vertices' },
+          { key: '1-1-0', title: 'Color'},
+          { key: '1-1-1', title: 'Image' },
+          { key: '1-1-2', title: 'Vertices' },
         ],
       },
     ],
@@ -46,9 +66,8 @@ class Demo extends React.Component {
     this.state = {
       defaultExpandedKeys: keys,
       defaultSelectedKeys: [],
-      defaultCheckedKeys: keys,
+      defaultCheckedKeys: keys
     };
-
     this.treeRef = React.createRef();
   }
 
@@ -57,11 +76,14 @@ class Demo extends React.Component {
   };
 
   onSelect = (selectedKeys, info) => {
+    const title = info.node.title.toLowerCase();
     console.log('selected', selectedKeys, info);
     this.selKey = info.node.props.eventKey;
+    this.props.changeSection(selectedKeys.length ? title : null)
   };
 
   onCheck = (checkedKeys, info) => {
+    console.log(this.props)
     console.log('onCheck', checkedKeys, info);
   };
 
@@ -122,4 +144,18 @@ class Demo extends React.Component {
   }
 }
 
-export default Demo;
+const mapStateToProps = state => {
+  return {
+  };
+};
+
+const mapDispatchToProps = dispatch => {
+  return {
+    changeSection:section => dispatch(changeSection(section))
+  };
+};
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Demo);

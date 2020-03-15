@@ -1,6 +1,5 @@
 .App-header .navbar {
   z-index: 10;
-  height: 56px;
   padding: 0 20px;
   background-color:#39372a;
 }
@@ -110,4 +109,8 @@
 
 .Pane.vertical.Pane1 > div >div{
   margin:20px 0 !important;
+}
+.Pane.horizontal.Pane2 {
+  padding: 15px;
+  color:whitesmoke;
 }

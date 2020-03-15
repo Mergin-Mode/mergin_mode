@@ -1,5 +1,6 @@
 import React,{ useState,useEffect } from 'react';
 import './App.css';
+import { connect } from "react-redux";
 import {
   Collapse,
   Navbar,
@@ -18,10 +19,19 @@ import createWorld from "../helpers/createWorld";
 import SplitPane from 'react-split-pane';
 import Modal from "react-modal";
 import LayerPanel from "./LayerPanel"
+import {loadModel,changeSection} from "../actions";
 
+import ModelList from "./ModelList";
 Modal.setAppElement('#root')
 
-function App() {
+function App(props) {
+  const allClasses = (name) => {
+    if(name === "models" ){
+      return <ModelList />
+    } else {
+      return <span></span>;
+    }
+  };
   const [menuOpen, setMenuOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [files, setFiles] = useState([])
@@ -31,16 +41,18 @@ function App() {
   const toggleModal = ()=>setModalOpen(!modalOpen);
   const toggleMenu = () => setMenuOpen(!menuOpen);
   const  loadModel = file => {
+    const {name,size} = file[0];
     const {scene,loaders} = elements;
     const loader = new loaders.FBXLoader();
       loader.load2(file, object => {
+        console.log(file)
         object.traverse( child => {
           if ( child.isMesh ) {
             child.castShadow = true;
             child.receiveShadow = true;
           }
         } );
-        scene.add( object );
+        props.loadModel({name,size,object});
         setModalOpen(!modalOpen);       
       });
   }
@@ -53,7 +65,7 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <Navbar expand="md">
+        <Navbar expand="md" className="navbar navbar-dark">
           <NavbarBrand href="/"><div className="logo-container"><div className="logo"/>Mergin' Mode</div></NavbarBrand>
           <NavbarToggler onClick={toggleMenu} />
           <Collapse isOpen={menuOpen} navbar>
@@ -93,7 +105,7 @@ function App() {
             </SplitPane>
           </div>
           <div>
-            
+            {props.section!== null && allClasses(props.section)}
           </div>
         </SplitPane>
 
@@ -124,4 +136,22 @@ function App() {
   );
 }
 
-export default App;
+
+const mapStateToProps = state => {
+  return {
+    section:state.api.section.active,
+    title:state.api.section.title
+  };
+};
+
+const mapDispatchToProps = dispatch => {
+  return {
+    loadModel:model =>dispatch(loadModel(model)),
+    changeSection:section => dispatch(changeSection(section))
+  };
+};
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(App);
