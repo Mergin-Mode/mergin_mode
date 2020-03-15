@@ -53,7 +53,7 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
 
 
         scene = new THREE.Scene();
-        scene.background = new THREE.Color( 0x0000ff );
+        scene.background = new THREE.Color( 0x000000 );
         // scene.fog = new THREE.FogExp2( 0xcccccc, 0.002 );
         renderer = new THREE.WebGLRenderer( { antialias: true } );
         renderer.setPixelRatio( window.devicePixelRatio );

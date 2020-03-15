@@ -1,5 +1,5 @@
 import React,{ useState,useEffect } from 'react';
-import './App.css';
+import './MapTools.css';
 import {
   Collapse,
   Navbar,
@@ -17,11 +17,10 @@ import {
 import createWorld from "../helpers/createWorld";
 import SplitPane from 'react-split-pane';
 import Modal from "react-modal";
-import LayerPanel from "./LayerPanel"
 
-Modal.setAppElement('#root')
+Modal.setMapToolsElement('#root')
 
-function App() {
+function MapTools() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [files, setFiles] = useState([])
@@ -51,10 +50,10 @@ function App() {
       setElements({...newWorld});
   },[])
   return (
-    <div className="App">
-      <header className="App-header">
-        <Navbar expand="md">
-          <NavbarBrand href="/"><div className="logo-container"><div className="logo"/>Mergin' Mode</div></NavbarBrand>
+    <div className="MapTools">
+      <header className="MapTools-header">
+        <Navbar color="dark" light expand="md">
+          <NavbarBrand href="/">3DRW</NavbarBrand>
           <NavbarToggler onClick={toggleMenu} />
           <Collapse isOpen={menuOpen} navbar>
             <Nav className="mr-auto" navbar>
@@ -73,28 +72,22 @@ function App() {
                 </DropdownMenu>
               </UncontrolledDropdown>
               <NavItem>
-                <NavLink href="https://github.com/prieston/mergin_mode">GitHub</NavLink>
+                <NavLink href="https://github.com/reactstrap/reactstrap">GitHub</NavLink>
               </NavItem>
             </Nav>
-            <NavbarText>Mergin' Mode</NavbarText>
+            <NavbarText>3drw</NavbarText>
           </Collapse>
         </Navbar>
       </header>
       <main>
-        <SplitPane split="horizontal" minSize={50} maxSize={-50} defaultSize={"80%"}>
-
+        <SplitPane split="horizontal" minSize={50} maxSize={"90%"} defaultSize={"80%"}>
           <div>
-            <SplitPane split="vertical" minSize={50} maxSize={-50} defaultSize={"20%"}>
-              <div>
-          <LayerPanel />
-                
-              </div>
+            <SplitPane split="vertical" minSize={50} maxSize={"90%"} defaultSize={"20%"}>
+              <div />
               <div id = "three-map" />
             </SplitPane>
           </div>
-          <div>
-            
-          </div>
+          <div />
         </SplitPane>
 
       </main>
@@ -124,4 +117,4 @@ function App() {
   );
 }
 
-export default App;
+export default MapTools;
