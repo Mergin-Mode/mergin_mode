@@ -19,7 +19,7 @@ import createWorld from "../helpers/createWorld";
 import SplitPane from 'react-split-pane';
 import Modal from "react-modal";
 import LayerPanel from "./LayerPanel"
-import {loadModel,changeSection} from "../actions";
+import {loadModel,changeSection,setScene} from "../actions";
 
 import ModelList from "./ModelList";
 Modal.setAppElement('#root')
@@ -60,6 +60,7 @@ function App(props) {
       let {camera,controls,scene,renderer,pointer,partials,loaders} = elements;
       const rendererContainer = document.getElementById("three-map");
       const newWorld = createWorld(camera,controls,scene,renderer,pointer,partials,loaders,rendererContainer);
+      props.setScene(newWorld.scene);
       setElements({...newWorld});
   },[])
   return (
@@ -147,7 +148,8 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => {
   return {
     loadModel:model =>dispatch(loadModel(model)),
-    changeSection:section => dispatch(changeSection(section))
+    changeSection:section => dispatch(changeSection(section)),
+    setScene:scene => dispatch(setScene(scene))
   };
 };
 

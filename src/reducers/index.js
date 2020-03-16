@@ -1,5 +1,6 @@
 import { combineReducers } from 'redux'
 const initialState = {
+	scene:{	},
 	models:{
 		data:[]
 	},
@@ -37,6 +38,11 @@ const api = (state = initialState, action) => {
 	  				active:action.section,
 	  				title:titles[action.section] || null
 	  			},
+	  		}));
+	  	case "SET_SCENE":
+	  	return Object.assign({},state,
+	  		Object.assign({},state.scene,{
+	  			scene:action.scene,
 	  		}));
     default:
       return state

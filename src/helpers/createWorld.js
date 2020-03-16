@@ -63,8 +63,8 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
 
 
         document.getElementById("three-map").appendChild( renderer.domElement );
-        camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 1000 );
-        camera.position.set( 20, 20, 20 );
+        camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 10000 );
+        camera.position.set( 80, 80, 80 );
         camera.up.set(0,0,1);
         // controls
         controls = new OrbitControls( camera, renderer.domElement );
@@ -73,13 +73,13 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
         controls.dampingFactor = 0.05;
         controls.screenSpacePanning = false;
         controls.minDistance = 10;
-        controls.maxDistance = 500;
+        controls.maxDistance = 1000;
         controls.maxPolarAngle = Math.PI / 2;
         // world
         var geometry = new THREE.PlaneBufferGeometry( 1000, 1000, 100, 100 );
         generateTerrain(geometry)        
 
-        var material = new THREE.MeshPhongMaterial( {color: 0xffff00, side: THREE.DoubleSide} );
+        var material = new THREE.MeshPhongMaterial( {color: "#222", side: THREE.DoubleSide} );
 
         material.flatShading = true
 
