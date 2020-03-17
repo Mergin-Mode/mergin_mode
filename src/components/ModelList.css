@@ -1,4 +1,52 @@
 .model-item {
-	border: 1px solid whitesmoke;
 	padding: 15px;
+	cursor: pointer;
+	position: relative;
+	border:1px solid #28271d;
+
+}
+.model-item .settings{
+	position: absolute;
+	top:5px;
+	right: 5px;
+}
+.model-item:hover{
+	background:#28271d;
+}
+.model-item-inner {
+	background:#28271d;
+	margin: 15px;
+	padding:10px;
+}
+
+.model-item-inner > button{
+	margin-top:30px;
+}
+
+.ModelList {
+	min-height: 100%
+}
+
+.ModelList h3{
+	margin-bottom: 40px
+}
+
+.ModelList.container{
+	margin-top:20px;
+	margin-bottom: 80px;
+}
+.model-item input {
+	background: transparent;
+    border: none;
+    border-bottom: 1px solid whitesmoke;
+    color: whitesmoke;
+	width: 100%;
+}
+.model-item input:focus {
+	outline: none;
+}
+.model-item label {
+	margin-bottom: 10px;
+	width: 100%;
+	display: block;
 }

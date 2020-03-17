@@ -8,6 +8,7 @@
   color:white;
 }
 .ReactModal__Overlay {
+  z-index: 1000;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -106,7 +107,12 @@
 .Resizer.disabled:hover {
   border-color: transparent;
 }
-
+.Pane.vertical.Pane1 {
+  overflow: auto;
+}
+.Pane.horizontal.Pane2 {
+  overflow: auto;
+}
 .Pane.vertical.Pane1 > div >div{
   margin:20px 0 !important;
 }

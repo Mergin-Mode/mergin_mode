@@ -14,3 +14,8 @@ export const changeSection = section => ({
   type: 'CHANGE_SECTION',
   section
 })
+
+export const setLayers = layers => ({
+  type: 'SET_LAYERS',
+  layers
+})

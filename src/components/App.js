@@ -19,7 +19,7 @@ import createWorld from "../helpers/createWorld";
 import SplitPane from 'react-split-pane';
 import Modal from "react-modal";
 import LayerPanel from "./LayerPanel"
-import {loadModel,changeSection,setScene} from "../actions";
+import {loadModel,changeSection,setScene,setLayers} from "../actions";
 
 import ModelList from "./ModelList";
 Modal.setAppElement('#root')
@@ -45,7 +45,6 @@ function App(props) {
     const {scene,loaders} = elements;
     const loader = new loaders.FBXLoader();
       loader.load2(file, object => {
-        console.log(file)
         object.traverse( child => {
           if ( child.isMesh ) {
             child.castShadow = true;
@@ -54,6 +53,10 @@ function App(props) {
         } );
         props.loadModel({name,size,object});
         setModalOpen(!modalOpen);       
+        const newLayers = JSON.parse(JSON.stringify(props.layers));
+        newLayers[0].children.push({ key: `0-${newLayers[0].children.length}`, title: name, checkable:false,selectable:false})
+        props.setLayers(newLayers);       
+
       });
   }
   useEffect(()=>{
@@ -141,7 +144,8 @@ function App(props) {
 const mapStateToProps = state => {
   return {
     section:state.api.section.active,
-    title:state.api.section.title
+    title:state.api.section.title,
+    layers:state.api.layers
   };
 };
 
@@ -149,7 +153,8 @@ const mapDispatchToProps = dispatch => {
   return {
     loadModel:model =>dispatch(loadModel(model)),
     changeSection:section => dispatch(changeSection(section)),
-    setScene:scene => dispatch(setScene(scene))
+    setScene:scene => dispatch(setScene(scene)),
+    setLayers:layers => dispatch(setLayers(layers)),
   };
 };
 
