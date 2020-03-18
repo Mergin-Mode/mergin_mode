@@ -19,15 +19,20 @@ import createWorld from "../helpers/createWorld";
 import SplitPane from 'react-split-pane';
 import Modal from "react-modal";
 import LayerPanel from "./LayerPanel"
-import {loadModel,changeSection,setScene,setLayers} from "../actions";
+import {loadVector,loadModel,changeSection,setScene,setLayers,setPlane} from "../actions";
+import readXlsxFile from 'read-excel-file';
+import * as XLSX from 'xlsx';
 
 import ModelList from "./ModelList";
+import Ground from "./Ground";
 Modal.setAppElement('#root')
 
 function App(props) {
   const allClasses = (name) => {
     if(name === "models" ){
       return <ModelList />
+    } else if(name === "vertices" ){
+      return <Ground />
     } else {
       return <span></span>;
     }
@@ -36,7 +41,7 @@ function App(props) {
   const [modalOpen, setModalOpen] = useState(false);
   const [files, setFiles] = useState([])
   const [elements, setElements] = useState({
-    camera:{}, controls:{}, scene:{}, renderer:{},pointer:{}, partials:{},loaders:{}
+    camera:{}, controls:{}, scene:{}, renderer:{},pointer:{}, partials:{},loaders:{},onWindowResize:()=>{}
   })
   const toggleModal = ()=>setModalOpen(!modalOpen);
   const toggleMenu = () => setMenuOpen(!menuOpen);
@@ -64,6 +69,7 @@ function App(props) {
       const rendererContainer = document.getElementById("three-map");
       const newWorld = createWorld(camera,controls,scene,renderer,pointer,partials,loaders,rendererContainer);
       props.setScene(newWorld.scene);
+      props.setPlane(newWorld.partials.plane);
       setElements({...newWorld});
   },[])
   return (
@@ -82,36 +88,28 @@ function App(props) {
                   <DropdownItem onClick = {toggleModal}>
                     <span>Import </span>
                   </DropdownItem>
-                  <DropdownItem>
-                    Open
-                  </DropdownItem>
                   <DropdownItem divider />
                 </DropdownMenu>
               </UncontrolledDropdown>
-              <NavItem>
-                <NavLink href="https://github.com/prieston/mergin_mode">GitHub</NavLink>
-              </NavItem>
             </Nav>
-            <NavbarText>Mergin' Mode</NavbarText>
+            <NavbarText>
+                <NavLink href="https://github.com/prieston/mergin_mode" target="_blank">
+                <i class="fab fa-github"></i>
+                <span>GitHub</span>
+                </NavLink>
+            </NavbarText>
           </Collapse>
         </Navbar>
       </header>
       <main>
-        <SplitPane split="horizontal" minSize={50} maxSize={-50} defaultSize={"80%"}>
-
-          <div>
-            <SplitPane split="vertical" minSize={50} maxSize={-50} defaultSize={"20%"}>
-              <div>
-          <LayerPanel />
-                
-              </div>
-              <div id = "three-map" />
-            </SplitPane>
-          </div>
-          <div>
-            {props.section!== null && allClasses(props.section)}
-          </div>
+      <SplitPane split="vertical" minSize={50} maxSize={-50} defaultSize={"20%"} onChange={elements.onWindowResize}>
+        <LayerPanel />
+        <SplitPane split="horizontal" minSize={50} maxSize={-50} defaultSize={"80%"} onChange={elements.onWindowResize}>
+          <div id = "three-map" />
+          {props.section!== null && allClasses(props.section)}
         </SplitPane>
+      </SplitPane>
+        
 
       </main>
       <Modal
@@ -128,7 +126,36 @@ function App(props) {
           </div>
           <div className="row">
             <div className="col-sm-6">
-              <button className="btn btn-primary form-control" onClick={()=>loadModel(files)}>Load</button>
+              <button className="btn btn-primary form-control" onClick={()=>{
+                const extention = files[0].name.split(".")[files[0].name.split(".").length - 1];
+                const vectorExt = ["xlsx","xls","ods","csv","xyz"];
+                if (vectorExt.indexOf(extention) > -1) {
+                  const reader = new FileReader();
+                  const rows= [];
+                  reader.onload = (evt) => { // evt = on_file_select event
+                      /* Parse data */
+                      const bstr = evt.target.result;
+                      const wb = XLSX.read(bstr, {type:'binary'});
+                      /* Get first worksheet */
+                      const wsname = wb.SheetNames[0];
+                      const ws = wb.Sheets[wsname];
+                      /* Convert array of arrays */
+                      const data = XLSX.utils.sheet_to_csv(ws, {header:1});
+                      /* Update state */
+                      rows.push(data.split("\n").map(v=>v.split(",").filter(v=>v.length > 0).map(n=>Number(n))));
+                  };
+                  reader.readAsBinaryString(files[0]);
+                  setModalOpen(!modalOpen);       
+                  const {name,size} = files[0];
+                  const newLayers = JSON.parse(JSON.stringify(props.layers));
+                  newLayers[1].children[2].children.push({ key: `1-2-${newLayers[1].children[2].children.length}`, title: name, checkable:false,selectable:false})
+                  props.setLayers(newLayers);  
+                  props.loadVector({name,size,array:rows});
+                 
+                } else {
+                  loadModel(files);
+                }
+              }}>Load</button>
             </div>
             <div className="col-sm-6">
               <button className="btn btn-secondary form-control" onClick={toggleModal}>Close</button>
@@ -152,8 +179,10 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => {
   return {
     loadModel:model =>dispatch(loadModel(model)),
+    loadVector:vector =>dispatch(loadVector(vector)),
     changeSection:section => dispatch(changeSection(section)),
     setScene:scene => dispatch(setScene(scene)),
+    setPlane:plane => dispatch(setPlane(plane)),
     setLayers:layers => dispatch(setLayers(layers)),
   };
 };

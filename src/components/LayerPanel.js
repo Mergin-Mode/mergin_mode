@@ -47,10 +47,9 @@ function LayerPanel (props) {
   const [layers,setLayers] = useState(props.layers)
 
   useEffect(()=>{
-    console.log("in here")
     setLayers(props.layers);
   },[props.layers])
-const customLabel = (
+  const customLabel = (
       <span className="cus-label">
         <span>operations: </span>
         <span style={{ color: 'blue' }} onClick={onEdit}>

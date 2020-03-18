@@ -42,13 +42,24 @@ const initialState = {
 	        title: 'Vector Layers',
 	        checkable:false,
 	        selectable:false,
-	        children: [],
+	        children: []
+	      },
+	      {
+	        key: '1-3',
+	        title: 'Model Layers',
+	        checkable:false,
+	        selectable:false,
+	        children: []
 	      },
 	    ],
 	  },
 	],
 	scene:{	},
+	plane:{	},
 	models:{
+		data:[]
+	},
+	vectors:{
 		data:[]
 	},
 	section:{
@@ -77,6 +88,20 @@ const api = (state = initialState, action) => {
 	  			]
 	  		}
 	  	)});
+	case "LOAD_VECTOR":
+	  	return Object.assign({},state, {
+	  		vectors: Object.assign({},state.vectors,{
+	  			data:[
+	  				...state.vectors.data,
+	  				{
+	  					id:[action.id],
+	  					array:action.vector.array,
+	  					name:action.vector.name,
+	  					size:action.vector.size
+	  				}
+	  			]
+	  		}
+	  	)});
   	case "CHANGE_SECTION":
 	  	return Object.assign({},state,{
 	  		section:Object.assign({},state.section,{
@@ -87,6 +112,10 @@ const api = (state = initialState, action) => {
 	case "SET_SCENE":
 	  	return Object.assign({},state,{
 	  		scene:action.scene,
+	  	});
+	case "SET_PLANE":
+	  	return Object.assign({},state,{
+	  		plane:action.plane,
 	  	});
 	case "SET_LAYERS":
 		return Object.assign( {},state,{

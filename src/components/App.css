@@ -18,7 +18,7 @@
 .logo-container {
   width:150px;
   height: 56px;
-  background: rgba(181, 79, 25, 0.2);
+  background: #8a8a8a33;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -32,6 +32,13 @@
 .navbar-brand {
   color: rgba(0, 0, 0, 0.9) !important;
 }
+
+.navbar-text *{
+  padding: 0 2px;
+  cursor:pointer;
+  color:#999 !important;
+}
+
 
 .logo{
   background:url("../assets/logo-transparent.png") no-repeat;
@@ -113,10 +120,18 @@
 .Pane.horizontal.Pane2 {
   overflow: auto;
 }
-.Pane.vertical.Pane1 > div >div{
+.Pane.vertical.Pane1 > div{
   margin:20px 0 !important;
 }
 .Pane.horizontal.Pane2 {
   padding: 15px;
   color:whitesmoke;
+}
+.Pane{
+  background-color:#39372a !important;
+}
+
+#three-map{
+  width: 100%;
+  height: 100%;
 }

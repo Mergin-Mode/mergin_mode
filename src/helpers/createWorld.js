@@ -32,6 +32,7 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
       var raycaster = new THREE.Raycaster();
       var mouse = new THREE.Vector2();
 
+        const host = document.getElementById("three-map");
       // init();
       //render(); // remove when using next line for animation loop (requestAnimationFrame)
 
@@ -40,12 +41,16 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
           const pos = g.getAttribute("position");
           const pa = pos.array;
 
-          const hVerts = g.parameters.width;
-          const wVerts = g.parameters.height;
-          for (let j = 0; j < hVerts; j++) {
-            for (let i = 0; i < wVerts; i++) {
-              pa[3 * (j * wVerts + i) + 2] = /*Math.random()*/0 
-            }
+          // const hVerts = g.parameters.width;
+          // const wVerts = g.parameters.height;
+          // for (let j = 0; j < hVerts; j++) {
+          //   for (let i = 0; i < wVerts; i++) {
+          //     pa[3 * (j * wVerts + i) + 2] = 300
+              
+          //   }
+          // }
+          for (let j = 2,i=0; j < pa.length; j+=3,i++) {
+              pa[j] = 0;
           }
           pos.needsUpdate = true;
           g.computeVertexNormals();
@@ -57,13 +62,12 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
         // scene.fog = new THREE.FogExp2( 0xcccccc, 0.002 );
         renderer = new THREE.WebGLRenderer( { antialias: true } );
         renderer.setPixelRatio( window.devicePixelRatio );
-        renderer.setSize( window.innerWidth, window.innerHeight );
+        renderer.setSize( host.clientWidth, host.clientHeight );
         renderer.shadowMap.enabled = true;
 
 
-
         document.getElementById("three-map").appendChild( renderer.domElement );
-        camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 10000 );
+        camera = new THREE.PerspectiveCamera( 60, host.clientWidth / host.clientHeight, 1, 10000 );
         camera.position.set( 80, 80, 80 );
         camera.up.set(0,0,1);
         // controls
@@ -76,7 +80,7 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
         controls.maxDistance = 1000;
         controls.maxPolarAngle = Math.PI / 2;
         // world
-        var geometry = new THREE.PlaneBufferGeometry( 1000, 1000, 100, 100 );
+        var geometry = new THREE.PlaneBufferGeometry( 100, 100, 100, 100 );
         generateTerrain(geometry)        
 
         var material = new THREE.MeshPhongMaterial( {color: "#222", side: THREE.DoubleSide} );
@@ -157,8 +161,8 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
         const el = document.getElementById("three-map").getBoundingClientRect()
         const left = el.left;
         const top = el.top;
-        mouse.x = ( (event.clientX-left) / window.innerWidth ) * 2 - 1;
-        mouse.y = - ( (event.clientY - top) / window.innerHeight ) * 2 + 1;
+        mouse.x = ( (event.clientX-left) / host.clientWidth ) * 2 - 1;
+        mouse.y = - ( (event.clientY - top) / host.clientHeight ) * 2 + 1;
 
         raycaster.setFromCamera( mouse, camera );
 
@@ -177,9 +181,10 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
 
 }
       function onWindowResize() {
-        camera.aspect = window.innerWidth / window.innerHeight;
+        console.log("in")
+        camera.aspect = host.clientWidth / host.clientHeight;
         camera.updateProjectionMatrix();
-        renderer.setSize( window.innerWidth, window.innerHeight );
+        renderer.setSize( host.clientWidth, host.clientHeight );
       }
 
       function animate() {
@@ -201,5 +206,5 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
       window.addEventListener( 'mousedown', onMouseMove, false );
 
       partials = {plane,pointer};
-      return {camera,controls,scene,renderer,pointer,partials,loaders}
+      return {camera,controls,scene,renderer,pointer,partials,loaders,onWindowResize}
 } 

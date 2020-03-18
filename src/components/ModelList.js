@@ -1,7 +1,6 @@
 import React,{ useState,useEffect } from 'react';
 import './ModelList.css';
 import { connect } from "react-redux";
-import readXlsxFile from 'read-excel-file'
 
 import {
   Collapse,
@@ -29,22 +28,26 @@ function ModelList(props) {
   const [position, setPosition] = useState(JSON.stringify({}));
   const [scale, setScale] = useState(JSON.stringify({}));
   const [rotation, setRotation] = useState(JSON.stringify({}));
+  const [vector, setVector] = useState({});
 
   useEffect(()=>{
     const newPosition = {}
     const newRotation = {}
     const newScale = {}
     const newMode = {}
+    const newVector = {}
     props.models.data.map(d=>{
       newPosition[d.id] = position[d.id] || JSON.stringify({x:0,y:0,z:0});
       newRotation[d.id] = rotation[d.id] || JSON.stringify({x:0,y:0,z:0});
       newScale[d.id] = scale[d.id] || JSON.stringify({x:1,y:1,z:1});
       newMode[d.id] = mode[d.id] || "info";
+      newVector[d.id] = vector[d.id] || 0;
     })
     setPosition(newPosition);
     setRotation(newRotation);
     setScale(newScale);
     setMode(newMode);
+    setVector(newVector);
   },[props.models.data])
   const onChange = (func,id,oldState,value) => func({...oldState,[id]:value});
 
@@ -68,26 +71,32 @@ function ModelList(props) {
               <div>name: {d.name}</div>
               <div>size: {(d.size/1000/1000).toFixed(2)} Mb</div>
               <button style ={{width:"100%"}}className="btn btn-light" onClick={()=>{
-                const mesh = d.mesh.clone();
-                const pos = JSON.parse(position[d.id]);
-                pos.x = Number(pos.x);
-                pos.y = Number(pos.y);
-                pos.z = Number(pos.z);
-                const rot = JSON.parse(rotation[d.id]);
-                rot.x = Number(rot.x);
-                rot.y = Number(rot.y);
-                rot.z = Number(rot.z);
-                const sca = JSON.parse(scale[d.id]);
-                sca.x = Number(sca.x);
-                sca.y = Number(sca.y);
-                sca.z = Number(sca.z);
-                console.log(rot,sca,pos)
-                mesh.rotation.set(rot.x,rot.y,rot.z);
-                mesh.scale.set(sca.x,sca.y,sca.z);
-                mesh.position.set(pos.x,pos.y,pos.z);
-                mesh.castShadow = true;
-                mesh.receiveShadow = true;
-                props.scene.add(mesh)
+      
+                props.vectors.filter(v=>{
+                  return v.id == vector[d.id]
+                }
+                )[0].array[0].map(r=>{
+                  const mesh = d.mesh.clone();
+                  // const pos = JSON.parse(position[d.id]);
+                  // pos.x = Number(pos.x);
+                  // pos.y = Number(pos.y);
+                  // pos.z = Number(pos.z);
+                  const rot = JSON.parse(rotation[d.id]);
+                  rot.x = Number(rot.x);
+                  rot.y = Number(rot.y);
+                  rot.z = Number(rot.z);
+                  const sca = JSON.parse(scale[d.id]);
+                  sca.x = Number(sca.x);
+                  sca.y = Number(sca.y);
+                  sca.z = Number(sca.z);
+                  mesh.rotation.set(rot.x,rot.y,rot.z);
+                  mesh.scale.set(sca.x,sca.y,sca.z);
+                  mesh.position.set(...r);
+                  mesh.castShadow = true;
+                  mesh.receiveShadow = true;
+                  props.scene.add(mesh)
+                })
+                
               }} >Add To Scene</button>
                 </React.Fragment>
                 ):(
@@ -97,17 +106,14 @@ function ModelList(props) {
                   <label>Scale</label>
                   <input onChange={e=>onChange(setScale,d.id,scale,e.target.value)} value={scale[d.id]}/>
                   <label>Position</label>
-                  <input onChange={e=>onChange(setPosition,d.id,position,e.target.value)} value={position[d.id]}/>
-                  <input type="file" onChange={e=> {
-                    console.log(e.target.files)
-  readXlsxFile(e.target.files[0]).then((rows) => {
-    console.log("in hre", rows)
-    // `rows` is an array of rows
-    // each row being an array of cells.
-  })
-}} />
+                  {/*<input onChange={e=>onChange(setPosition,d.id,position,e.target.value)} value={position[d.id]}/>*/}
+                  <select onChange={e=> {
+                    onChange(setVector,d.id,vector,e.target.value)
+                  }}>
+                    <option value={0} selected={vector[d.id] == 0}>Select</option>
+                    {props.vectors.map(v=><option value={v.id} selected={vector[d.id] == v.id}>{v.name}</option>)}
+                  </select>
                 </React.Fragment>
-
                 )}
               
             </div>
@@ -124,7 +130,8 @@ const mapStateToProps = state => {
   return {
     models:state.api.models,
     title:state.api.section.title,
-    scene:state.api.scene
+    scene:state.api.scene,
+    vectors:state.api.vectors.data
   };
 };
 

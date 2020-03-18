@@ -23,7 +23,9 @@
     "redux": "^4.0.5",
     "redux-logger": "^3.0.6",
     "redux-thunk": "^2.3.0",
-    "three": "^0.112.1"
+    "three": "^0.112.1",
+    "three-buffer-geometry-utils": "^1.0.0",
+    "xlsx": "^0.15.6"
   },
   "scripts": {
     "start": "react-scripts start",
