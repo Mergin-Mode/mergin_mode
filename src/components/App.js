@@ -23,6 +23,7 @@ import Modal from "react-modal";
 import LayerPanel from "./LayerPanel"
 import {setModelRuntimeInfo,loadVector,loadModel,changeSection,setScene,setLayers,setPlane} from "../actions";
 import readXlsxFile from 'read-excel-file';
+import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 import * as XLSX from 'xlsx';
 
 import ModelList from "./ModelList";
@@ -43,16 +44,51 @@ function App(props) {
   const [modalOpen, setModalOpen] = useState(false);
   const [files, setFiles] = useState([])
   const [elements, setElements] = useState({
-    mixer:null, camera:{}, controls:{}, scene:{}, renderer:{},pointer:{}, partials:{},loaders:{},onWindowResize:()=>{}
+    mixers:[], camera:{}, controls:{}, scene:{}, renderer:{},pointer:{}, partials:{},loaders:{},onWindowResize:()=>{}
   })
   const toggleModal = ()=>setModalOpen(!modalOpen);
   const toggleMenu = () => setMenuOpen(!menuOpen);
-  const  loadModel = file => {
+
+  const  loadGLTFModel = file => {
+    const {name,size} = file[0];
+    const {scene,loaders} = elements;
+
+    const loader = new loaders.GLTFLoader();
+    var dracoLoader = new DRACOLoader();
+    loader.setDRACOLoader( dracoLoader );
+
+    loader.load2(file, gltf => {
+         // var scene = gltf.scene;
+
+          // model.animations = gltf.animations;
+          // model.scene = scene;
+
+          // Enable Shadows
+
+          gltf.scene.traverse( function ( object ) {
+
+            if ( object.isMesh ) {
+
+              object.castShadow = true;
+
+            }
+
+          } );
+        props.loadModel({name,size,object:gltf});
+        setModalOpen(!modalOpen);       
+        const newLayers = JSON.parse(JSON.stringify(props.layers));
+        newLayers[0].children.push({ key: `0-${newLayers[0].children.length}`, title: name, checkable:false,selectable:false})
+        props.setLayers(newLayers);       
+
+      });
+  }   
+  const  loadFBXModel = file => {
     const {name,size} = file[0];
     const {scene,loaders} = elements;
 
     const loader = new loaders.FBXLoader();
-      loader.load2(file, object => {
+    
+    loader.load2(file, object => {
         console.log(object.animations)
         // if(object.animations.length > 0) {
         //   elements.mixer = new THREE.AnimationMixer( object );
@@ -75,11 +111,11 @@ function App(props) {
       });
   }
   useEffect(()=>{
-      let {mixer,camera,controls,scene,renderer,pointer,partials,loaders} = elements;
+      let {mixers,camera,controls,scene,renderer,pointer,partials,loaders} = elements;
       const rendererContainer = document.getElementById("three-map");
-      const newWorld = createWorld(camera,controls,scene,renderer,pointer,partials,loaders,rendererContainer,mixer,props.setModelRuntimeInfo);
+      const newWorld = createWorld(camera,controls,scene,renderer,pointer,partials,loaders,rendererContainer,mixers,props.setModelRuntimeInfo);
       props.setScene(newWorld.scene);
-      props.setPlane(newWorld.partials.plane);
+      props.setPlane({id:Date.now(),mesh:newWorld.partials.plane});
       setElements({...newWorld});
   },[])
   return (
@@ -158,14 +194,12 @@ function App(props) {
                       const newLayers = JSON.parse(JSON.stringify(props.layers));
                       newLayers[1].children[2].children.push({ key: `1-2-${newLayers[1].children[2].children.length}`, title: name, checkable:false,selectable:false})
                       props.setLayers(newLayers);
-                      console.log(name,rows)
                       if(name.includes("anime")){
                         for(let i=0;i< rows[0].length - 1;i++) {
                           const Xa = rows[0][i][0]; 
                           const Ya = rows[0][i][1];
                           const Xb = (rows[0][i + 1] || [])[0] || 0; 
                           const Yb = (rows[0][i + 1] || [])[1] || 0; 
-                          console.log(Xa,Ya,Xb,Yb)
                           const {Gab,Sab} = ThemeliodesProblima_2(Xa,Ya,Xb,Yb)
                           rows[0][i][3] = Number(Gab);
                           rows[0][i][4] = Number(Sab);
@@ -179,9 +213,12 @@ function App(props) {
                   setModalOpen(!modalOpen);       
                   
                  
-                } else {
-                  loadModel(files);
+                } else if(extention == "fbx") {
+                  loadFBXModel(files);
+                } else if (extention === "glb" || extention === "gltf") {
+                  loadGLTFModel(files);
                 }
+                console.log(vectorExt)
               }}>Load</button>
             </div>
             <div className="col-sm-6">
@@ -221,3 +258,72 @@ export default connect(
   mapStateToProps,
   mapDispatchToProps
 )(App);
+
+
+// function instantiateUnits() {
+
+//         var numSuccess = 0;
+
+//         for ( var i = 0; i < UNITS.length; ++ i ) {
+
+//           var u = UNITS[ i ];
+//           var model = getModelByName( u.modelName );
+
+//           if ( model ) {
+
+//             var clonedScene = SkeletonUtils.clone( model.scene );
+
+//             if ( clonedScene ) {
+
+//               // THREE.Scene is cloned properly, let's find one mesh and launch animation for it
+//               var clonedMesh = clonedScene.getObjectByName( u.meshName );
+
+//               if ( clonedMesh ) {
+
+//                 var mixer = startAnimation( clonedMesh, model.animations, u.animationName );
+
+//                 // Save the animation mixer in the list, will need it in the animation loop
+//                 mixers.push( mixer );
+//                 numSuccess ++;
+
+//               }
+
+//               // Different models can have different configurations of armatures and meshes. Therefore,
+//               // We can't set position, scale or rotation to individual mesh objects. Instead we set
+//               // it to the whole cloned scene and then add the whole scene to the game world
+//               // Note: this may have weird effects if you have lights or other items in the GLTF file's scene!
+//               worldScene.add( clonedScene );
+
+//               if ( u.position ) {
+
+//                 clonedScene.position.set( u.position.x, u.position.y, u.position.z );
+
+//               }
+
+//               if ( u.scale ) {
+
+//                 clonedScene.scale.set( u.scale, u.scale, u.scale );
+
+//               }
+
+//               if ( u.rotation ) {
+
+//                 clonedScene.rotation.x = u.rotation.x;
+//                 clonedScene.rotation.y = u.rotation.y;
+//                 clonedScene.rotation.z = u.rotation.z;
+
+//               }
+
+//                   }
+
+//           } else {
+
+//             console.error( "Can not find model", u.modelName );
+
+//           }
+
+//         }
+
+//         console.log( `Successfully instantiated ${numSuccess} units` );
+
+//       }

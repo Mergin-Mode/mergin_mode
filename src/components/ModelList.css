@@ -9,6 +9,8 @@
 	position: absolute;
 	top:5px;
 	right: 5px;
+	width:16px;
+	height:16px;
 }
 .model-item:hover{
 	background:#28271d;

@@ -2,6 +2,7 @@ import React,{ useState,useEffect } from 'react';
 import './ModelList.css';
 import { connect } from "react-redux";
 import * as THREE from 'three';
+import { SkeletonUtils } from 'three/examples/jsm/utils/SkeletonUtils.js';
 
 import {
   Collapse,
@@ -78,7 +79,15 @@ function ModelList(props) {
                 )[0];
 
                 if (theVector.name.includes("anime")){
-                  const mesh = d.mesh.clone();
+                  let mesh;
+                  if(d.name.includes("glb") || d.name.includes("gltf")){
+                    mesh = SkeletonUtils.clone( d.mesh.scene );
+                    var mixer = startAnimation( mesh, d.mesh.animations, "Walk" );
+                    window.mergin_mode.mixers.push(mixer)
+                  } else {
+                    mesh = d.mesh.clone();
+
+                  }
                   const rot = JSON.parse(rotation[d.id]);
                   rot.x = Number(rot.x);
                   rot.y = Number(rot.y);
@@ -87,14 +96,15 @@ function ModelList(props) {
                   sca.x = Number(sca.x);
                   sca.y = Number(sca.y);
                   sca.z = Number(sca.z);
-                  mesh.rotation.set(rot.x,rot.y,rot.z);
-                  // const axisX = new THREE.Vector3(1, 0, 0);
-                  // const axisY = new THREE.Vector3(0, 1, 0);
+                  // mesh.rotation.set(rot.x,rot.y,rot.z);
+                  const axisX = new THREE.Vector3(1, 0, 0);
+                  const axisY = new THREE.Vector3(0, 1, 0);
                   const axisZ = new THREE.Vector3(0, 0, 1);
-                  // mesh.rotateOnWorldAxis(axisX, rot.x);
-                  // mesh.rotateOnWorldAxis(axisY, rot.y);
+                  mesh.rotateOnWorldAxis(axisX, rot.x);
+                  mesh.rotateOnWorldAxis(axisY, rot.y);
                   // mesh.rotateOnWorldAxis(axisZ, rot.z);
-                  mesh.rotateOnWorldAxis(axisZ, (-theVector.array[0][0][3] + 100)/63.6619772367581);
+                  mesh.rotateOnWorldAxis(axisZ, (-theVector.array[0][0][3] )/63.6619772367581);
+                  // mesh.rotation.z = ((theVector.array[0][0][3])/63.6619772367581);
 
                   mesh.scale.set(sca.x,sca.y,sca.z);
                   mesh.position.set(...theVector.array[0][0]);
@@ -111,7 +121,14 @@ function ModelList(props) {
                 }
 
                 theVector.array[0].map(r=>{
-                  const mesh = d.mesh.clone();
+                  let mesh;
+                  if(d.name.includes("glb") || d.name.includes("gltf")){
+                  mesh = SkeletonUtils.clone( d.mesh.scene );
+
+                  } else {
+                    mesh = d.mesh.clone();
+
+                  }
                   // const pos = JSON.parse(position[d.id]);
                   // pos.x = Number(pos.x);
                   // pos.y = Number(pos.y);
@@ -120,11 +137,20 @@ function ModelList(props) {
                   rot.x = Number(rot.x);
                   rot.y = Number(rot.y);
                   rot.z = Number(rot.z);
+                  const axisX = new THREE.Vector3(1, 0, 0);
+                  const axisY = new THREE.Vector3(0, 1, 0);
+                  const axisZ = new THREE.Vector3(0, 0, 1);
+                  mesh.rotateOnWorldAxis(axisX, rot.x);
+                  mesh.rotateOnWorldAxis(axisY, rot.y);
+                  mesh.rotateOnWorldAxis(axisZ, rot.z);
+                  // mesh.rotateOnWorldAxis(axisZ, ( )/63.6619772367581);
+
                   const sca = JSON.parse(scale[d.id]);
                   sca.x = Number(sca.x);
                   sca.y = Number(sca.y);
                   sca.z = Number(sca.z);
-                  mesh.rotation.set(rot.x,rot.y,rot.z);
+                  // mesh.rotation.set(rot.x,rot.y,rot.z);
+
                   mesh.scale.set(sca.x,sca.y,sca.z);
                   mesh.position.set(...r);
                   mesh.castShadow = true;
@@ -182,3 +208,19 @@ export default connect(
   mapStateToProps,
   mapDispatchToProps
 )(ModelList);
+
+function startAnimation( skinnedMesh, animations, animationName ) {
+
+        var mixer = new THREE.AnimationMixer( skinnedMesh );
+        var clip = THREE.AnimationClip.findByName( animations, animationName );
+
+        if ( clip ) {
+
+          var action = mixer.clipAction( clip );
+          action.play();
+
+        }
+
+        return mixer;
+
+      }

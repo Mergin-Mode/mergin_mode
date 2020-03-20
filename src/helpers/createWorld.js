@@ -1,8 +1,32 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import {CalculateDeltaPosition} from "./CalculateDeltaPosition";
 import {calculateSab} from "./ThemeliodiProblimata";
+        // var modelName = "models/gltf/" + model.name + ".glb";
+
+GLTFLoader.prototype.load2 = function(files, callback) {
+    var scope = this;
+    var file = files[0];
+
+    var reader = new FileReader();
+    
+    reader.onload = function(event) {
+        if (event.target.readyState === 2 || event.target.status === 0) {
+            scope.parse(event.target.result || event.target.responseText,"",callback);
+            // if (callback)
+            //     callback(gltf);
+
+        } else {
+
+            // scope.dispatchEvent({type: 'error', message: 'Couldn\'t load URL [' + url + ']', response: event.target.readyState});
+
+        }
+    };
+    reader.readAsArrayBuffer(file);
+
+};
 FBXLoader.prototype.load2 = function(files, callback) {
     var scope = this;
     var file = files[0];
@@ -28,7 +52,8 @@ FBXLoader.prototype.load2 = function(files, callback) {
 };
 
 export default function	createWorld(camera,controls,scene,renderer,pointer,partials,loaders,rendererContainer, mixer,setModelRuntimeInfo) {
-    	loaders.FBXLoader = FBXLoader;
+      loaders.FBXLoader = FBXLoader;
+    	loaders.GLTFLoader = GLTFLoader;
     	var clock = new THREE.Clock();
       var raycaster = new THREE.Raycaster();
       var mouse = new THREE.Vector2();
@@ -81,7 +106,7 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
         controls.maxDistance = 1000;
         controls.maxPolarAngle = Math.PI / 2;
         // world
-        var geometry = new THREE.PlaneBufferGeometry( 100, 100, 100, 100 );
+        var geometry = new THREE.PlaneBufferGeometry( 100, 100, 99, 99 );
         generateTerrain(geometry)        
 
         var material = new THREE.MeshPhongMaterial( {color: "#222", side: THREE.DoubleSide} );
@@ -131,8 +156,8 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
         scene.add( light );
         
 
-        var lhelper = new THREE.DirectionalLightHelper( light, 5 );
-        scene.add( lhelper );
+        // var lhelper = new THREE.DirectionalLightHelper( light, 5 );
+        // scene.add( lhelper );
 
         var axesHelper = new THREE.AxesHelper( 5 );
         scene.add( axesHelper );
@@ -180,12 +205,10 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
           pointer.lookAt( intersects[ 0 ].face.normal );
 
           pointer.position.copy( intersects[ 0 ].point );
-          console.log(pointer.position)
         }
 
       }
       function onWindowResize() {
-        console.log("in")
         camera.aspect = host.clientWidth / host.clientHeight;
         camera.updateProjectionMatrix();
         renderer.setSize( host.clientWidth, host.clientHeight );
@@ -200,7 +223,11 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
       function render() {
         var delta = clock.getDelta();
 
-        if ( mixer ) mixer.update( delta );
+        for ( var i = 0; i < window.mergin_mode.mixers.length; ++ i ) {
+
+          window.mergin_mode.mixers[ i ].update( delta );
+
+        }
         window.mergin_mode.modelLayer.map(model => {
           const {x,y,z} = model.mesh.position;
           const {animating,activeRow} = model.runtimeInfo;
@@ -211,8 +238,8 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
           const Gab = activeRowData[3];
           const Sab = activeRowData[4];
           if(animating) {
-            console.log(xStart,yStart,x,y)
-            const {x:newX,y:newY,z:newZ} = CalculateDeltaPosition(x,y,z,Gab,0.01);
+            const dem =window.mergin_mode.plane.dem;
+            const {x:newX,y:newY,z:newZ} = CalculateDeltaPosition(Number(x.toFixed(4)),Number(y.toFixed(4)),Number(z.toFixed(4)),Gab,delta,dem);
             let newSab = calculateSab(xStart,yStart,x,y);
             if(newSab === Infinity){
               newSab = 0
@@ -220,7 +247,6 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
             if(newSab < Sab){
               model.mesh.position.set(newX,newY,newZ)  
             } else {
-              console.log("newRow")
               const newActiveRow = window.mergin_mode.vectors.data.filter(v=>v.id == model.vectorId)[0].array[0][activeRow + 1];
               if(!newActiveRow) {
                   const startActiveRow = window.mergin_mode.vectors.data.filter(v=>v.id == model.vectorId)[0].array[0][0];
@@ -237,13 +263,12 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
                   const axisZ = new THREE.Vector3(0, 0, 1);
                   // mesh.rotateOnWorldAxis(axisX, rot.x);
                   // mesh.rotateOnWorldAxis(axisY, rot.y);
-                  model.mesh.rotateOnWorldAxis(axisZ, (-newActiveRow[3] + activeRowData[3])/63.6619772367581);
+                  model.mesh.rotateOnWorldAxis(axisZ, -(400 - activeRowData[3] + newActiveRow[3])/63.6619772367581);
               }
             }
             
           }
         })
-        // console.log(pointer.position)
         renderer.render( scene, camera );
       }
 

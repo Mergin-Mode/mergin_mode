@@ -1,7 +1,9 @@
 import { combineReducers } from 'redux'
 window.mergin_mode = {
 	modelLayer: [],
-	vectors:[]
+	vectors:[],
+	plane:{},
+	mixers:[]
 }
 const initialState = {
 	layers:[
@@ -59,7 +61,11 @@ const initialState = {
 	  },
 	],
 	scene:{	},
-	plane:{	},
+	plane:{
+		id:null,
+		mesh:{},
+		dem:[]
+	},
 	models:{
 		data:[]
 	},
@@ -123,9 +129,11 @@ const api = (state = initialState, action) => {
 	  		scene:action.scene,
 	  	});
 	case "SET_PLANE":
-	  	return Object.assign({},state,{
-	  		plane:action.plane,
+	  	const newState = Object.assign({},state,{
+	  		plane:{...state.plane,...action.plane},
 	  	});
+	  	window.mergin_mode.plane = newState.plane;
+	  	return newState;
 	case "SET_LAYERS":
 		return Object.assign( {},state,{
 			layers: action.layers

@@ -1,7 +1,7 @@
 import React,{ useState,useEffect } from 'react';
 import { connect } from "react-redux";
 import * as THREE from 'three';
-
+import {setPlane} from "../actions/index";
 function ModelList(props) {
   const [vector, setVector] = useState(0);
 
@@ -19,12 +19,17 @@ function ModelList(props) {
         for ( var i = 0, l = 100*100; i < l; i ++ ) {
 
             index ++; 
-            index ++; 
+            index ++;
+            if(i==0){
+            positions[ index ++ ] = 200;
+
+            }else {
+
             positions[ index ++ ] = (((v[i] ||[])[2]) || 0)*0.01;
+            }
 
         }
         props.plane.geometry.attributes.position.needsUpdate = true;
-
         var loader = new THREE.TextureLoader();
           loader.crossOrigin = "";
           loader.load('../assets/ground-texture.png',
@@ -36,6 +41,7 @@ function ModelList(props) {
               function () {},  // onProgress function
               function ( error ) { console.log( error ) } // onError function
           );
+        props.setPlane(v)
       }}>
         <option value={0} selected={vector == 0}>Select</option>
         {props.vectors.map(v=><option value={v.id} selected={vector == v.id}>{v.name}</option>)}
@@ -51,12 +57,13 @@ const mapStateToProps = state => {
     title:state.api.section.title,
     scene:state.api.scene,
     vectors:state.api.vectors.data,
-    plane: state.api.plane
+    plane: state.api.plane.mesh
   };
 };
 
 const mapDispatchToProps = dispatch => {
   return {
+    setPlane: array => dispatch(setPlane({dem:array}))
   };
 };
 
