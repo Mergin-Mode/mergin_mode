@@ -1,6 +1,7 @@
 import React,{ useState,useEffect } from 'react';
 import './ModelList.css';
 import { connect } from "react-redux";
+import * as THREE from 'three';
 
 import {
   Collapse,
@@ -20,7 +21,7 @@ import createWorld from "../helpers/createWorld";
 import SplitPane from 'react-split-pane';
 import Modal from "react-modal";
 import LayerPanel from "./LayerPanel"
-import {loadModel,changeSection} from "../actions";
+import {loadModel,changeSection,setModelLayer} from "../actions";
 
 
 function ModelList(props) {
@@ -71,11 +72,45 @@ function ModelList(props) {
               <div>name: {d.name}</div>
               <div>size: {(d.size/1000/1000).toFixed(2)} Mb</div>
               <button style ={{width:"100%"}}className="btn btn-light" onClick={()=>{
-      
-                props.vectors.filter(v=>{
+                const theVector = props.vectors.filter(v=>{
                   return v.id == vector[d.id]
                 }
-                )[0].array[0].map(r=>{
+                )[0];
+
+                if (theVector.name.includes("anime")){
+                  const mesh = d.mesh.clone();
+                  const rot = JSON.parse(rotation[d.id]);
+                  rot.x = Number(rot.x);
+                  rot.y = Number(rot.y);
+                  rot.z = Number(rot.z);
+                  const sca = JSON.parse(scale[d.id]);
+                  sca.x = Number(sca.x);
+                  sca.y = Number(sca.y);
+                  sca.z = Number(sca.z);
+                  mesh.rotation.set(rot.x,rot.y,rot.z);
+                  // const axisX = new THREE.Vector3(1, 0, 0);
+                  // const axisY = new THREE.Vector3(0, 1, 0);
+                  const axisZ = new THREE.Vector3(0, 0, 1);
+                  // mesh.rotateOnWorldAxis(axisX, rot.x);
+                  // mesh.rotateOnWorldAxis(axisY, rot.y);
+                  // mesh.rotateOnWorldAxis(axisZ, rot.z);
+                  mesh.rotateOnWorldAxis(axisZ, (-theVector.array[0][0][3] + 100)/63.6619772367581);
+
+                  mesh.scale.set(sca.x,sca.y,sca.z);
+                  mesh.position.set(...theVector.array[0][0]);
+                  mesh.castShadow = true;
+                  mesh.receiveShadow = true;
+                  props.scene.add(mesh);
+                  props.setModelLayer({
+                    id:Date.now(),
+                    vectorId:theVector.id,
+                    runtimeInfo:{animating:true,activeRow:0},
+                    mesh
+                  });
+                  return false;
+                }
+
+                theVector.array[0].map(r=>{
                   const mesh = d.mesh.clone();
                   // const pos = JSON.parse(position[d.id]);
                   // pos.x = Number(pos.x);
@@ -138,7 +173,8 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => {
   return {
     loadModel:model =>dispatch(loadModel(model)),
-    changeSection:section => dispatch(changeSection(section))
+    changeSection:section => dispatch(changeSection(section)),
+    setModelLayer: layer => dispatch(setModelLayer(layer))
   };
 };
 

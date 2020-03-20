@@ -1,6 +1,8 @@
 import React,{ useState,useEffect } from 'react';
 import './App.css';
 import { connect } from "react-redux";
+import * as THREE from 'three';
+import {ThemeliodesProblima_2} from "../helpers/ThemeliodiProblimata"
 import {
   Collapse,
   Navbar,
@@ -19,7 +21,7 @@ import createWorld from "../helpers/createWorld";
 import SplitPane from 'react-split-pane';
 import Modal from "react-modal";
 import LayerPanel from "./LayerPanel"
-import {loadVector,loadModel,changeSection,setScene,setLayers,setPlane} from "../actions";
+import {setModelRuntimeInfo,loadVector,loadModel,changeSection,setScene,setLayers,setPlane} from "../actions";
 import readXlsxFile from 'read-excel-file';
 import * as XLSX from 'xlsx';
 
@@ -41,15 +43,23 @@ function App(props) {
   const [modalOpen, setModalOpen] = useState(false);
   const [files, setFiles] = useState([])
   const [elements, setElements] = useState({
-    camera:{}, controls:{}, scene:{}, renderer:{},pointer:{}, partials:{},loaders:{},onWindowResize:()=>{}
+    mixer:null, camera:{}, controls:{}, scene:{}, renderer:{},pointer:{}, partials:{},loaders:{},onWindowResize:()=>{}
   })
   const toggleModal = ()=>setModalOpen(!modalOpen);
   const toggleMenu = () => setMenuOpen(!menuOpen);
   const  loadModel = file => {
     const {name,size} = file[0];
     const {scene,loaders} = elements;
+
     const loader = new loaders.FBXLoader();
       loader.load2(file, object => {
+        console.log(object.animations)
+        // if(object.animations.length > 0) {
+        //   elements.mixer = new THREE.AnimationMixer( object );
+        //   var action = elements.mixer.clipAction( object.animations[ 0 ] );
+        //   action.play();  
+        // }
+        
         object.traverse( child => {
           if ( child.isMesh ) {
             child.castShadow = true;
@@ -65,9 +75,9 @@ function App(props) {
       });
   }
   useEffect(()=>{
-      let {camera,controls,scene,renderer,pointer,partials,loaders} = elements;
+      let {mixer,camera,controls,scene,renderer,pointer,partials,loaders} = elements;
       const rendererContainer = document.getElementById("three-map");
-      const newWorld = createWorld(camera,controls,scene,renderer,pointer,partials,loaders,rendererContainer);
+      const newWorld = createWorld(camera,controls,scene,renderer,pointer,partials,loaders,rendererContainer,mixer,props.setModelRuntimeInfo);
       props.setScene(newWorld.scene);
       props.setPlane(newWorld.partials.plane);
       setElements({...newWorld});
@@ -102,9 +112,9 @@ function App(props) {
         </Navbar>
       </header>
       <main>
-      <SplitPane split="vertical" minSize={50} maxSize={-50} defaultSize={"20%"} onChange={elements.onWindowResize}>
+      <SplitPane split="vertical" minSize={50} maxSize={-50} defaultSize={"40%"} onChange={elements.onWindowResize}>
         <LayerPanel />
-        <SplitPane split="horizontal" minSize={50} maxSize={-50} defaultSize={"80%"} onChange={elements.onWindowResize}>
+        <SplitPane split="horizontal" minSize={50} maxSize={-50} defaultSize={"60%"} onChange={elements.onWindowResize}>
           <div id = "three-map" />
           {props.section!== null && allClasses(props.section)}
         </SplitPane>
@@ -143,14 +153,31 @@ function App(props) {
                       const data = XLSX.utils.sheet_to_csv(ws, {header:1});
                       /* Update state */
                       rows.push(data.split("\n").map(v=>v.split(",").filter(v=>v.length > 0).map(n=>Number(n))));
+
+                      const {name,size} = files[0];
+                      const newLayers = JSON.parse(JSON.stringify(props.layers));
+                      newLayers[1].children[2].children.push({ key: `1-2-${newLayers[1].children[2].children.length}`, title: name, checkable:false,selectable:false})
+                      props.setLayers(newLayers);
+                      console.log(name,rows)
+                      if(name.includes("anime")){
+                        for(let i=0;i< rows[0].length - 1;i++) {
+                          const Xa = rows[0][i][0]; 
+                          const Ya = rows[0][i][1];
+                          const Xb = (rows[0][i + 1] || [])[0] || 0; 
+                          const Yb = (rows[0][i + 1] || [])[1] || 0; 
+                          console.log(Xa,Ya,Xb,Yb)
+                          const {Gab,Sab} = ThemeliodesProblima_2(Xa,Ya,Xb,Yb)
+                          rows[0][i][3] = Number(Gab);
+                          rows[0][i][4] = Number(Sab);
+                        }
+                        props.loadVector({name,size,array:rows});
+                      } else {
+                        props.loadVector({name,size,array:rows});
+                      }
                   };
                   reader.readAsBinaryString(files[0]);
                   setModalOpen(!modalOpen);       
-                  const {name,size} = files[0];
-                  const newLayers = JSON.parse(JSON.stringify(props.layers));
-                  newLayers[1].children[2].children.push({ key: `1-2-${newLayers[1].children[2].children.length}`, title: name, checkable:false,selectable:false})
-                  props.setLayers(newLayers);  
-                  props.loadVector({name,size,array:rows});
+                  
                  
                 } else {
                   loadModel(files);
@@ -172,7 +199,9 @@ const mapStateToProps = state => {
   return {
     section:state.api.section.active,
     title:state.api.section.title,
-    layers:state.api.layers
+    layers:state.api.layers,
+    vectors: state.api.vectors,
+    modelLayer:state.api.modelLayer
   };
 };
 
@@ -184,6 +213,7 @@ const mapDispatchToProps = dispatch => {
     setScene:scene => dispatch(setScene(scene)),
     setPlane:plane => dispatch(setPlane(plane)),
     setLayers:layers => dispatch(setLayers(layers)),
+    setModelRuntimeInfo:(modelId,info) => dispatch(setModelRuntimeInfo(modelId,info))
   };
 };
 

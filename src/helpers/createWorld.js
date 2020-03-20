@@ -1,7 +1,8 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js';
-
+import {CalculateDeltaPosition} from "./CalculateDeltaPosition";
+import {calculateSab} from "./ThemeliodiProblimata";
 FBXLoader.prototype.load2 = function(files, callback) {
     var scope = this;
     var file = files[0];
@@ -26,9 +27,9 @@ FBXLoader.prototype.load2 = function(files, callback) {
 
 };
 
-export default function	createWorld(camera,controls,scene,renderer,pointer,partials,loaders,rendererContainer) {
-	loaders.FBXLoader = FBXLoader;
-	var clock = new THREE.Clock();
+export default function	createWorld(camera,controls,scene,renderer,pointer,partials,loaders,rendererContainer, mixer,setModelRuntimeInfo) {
+    	loaders.FBXLoader = FBXLoader;
+    	var clock = new THREE.Clock();
       var raycaster = new THREE.Raycaster();
       var mouse = new THREE.Vector2();
 
@@ -133,6 +134,9 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
         var lhelper = new THREE.DirectionalLightHelper( light, 5 );
         scene.add( lhelper );
 
+        var axesHelper = new THREE.AxesHelper( 5 );
+        scene.add( axesHelper );
+
         var light = new THREE.DirectionalLight( 0x002288 );
         light.position.set( - 0, - 0, - 100 );
         scene.add( light );
@@ -176,10 +180,10 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
           pointer.lookAt( intersects[ 0 ].face.normal );
 
           pointer.position.copy( intersects[ 0 ].point );
-
+          console.log(pointer.position)
         }
 
-}
+      }
       function onWindowResize() {
         console.log("in")
         camera.aspect = host.clientWidth / host.clientHeight;
@@ -194,9 +198,52 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
       }
 
       function render() {
-        // var delta = clock.getDelta();
+        var delta = clock.getDelta();
 
-        // if ( mixer ) mixer.update( delta );
+        if ( mixer ) mixer.update( delta );
+        window.mergin_mode.modelLayer.map(model => {
+          const {x,y,z} = model.mesh.position;
+          const {animating,activeRow} = model.runtimeInfo;
+          const activeRowData = window.mergin_mode.vectors.data.filter(v=>v.id == model.vectorId)[0].array[0][activeRow];
+          const xStart = activeRowData[0];
+          const yStart = activeRowData[1];
+          const zStart = activeRowData[2];
+          const Gab = activeRowData[3];
+          const Sab = activeRowData[4];
+          if(animating) {
+            console.log(xStart,yStart,x,y)
+            const {x:newX,y:newY,z:newZ} = CalculateDeltaPosition(x,y,z,Gab,0.01);
+            let newSab = calculateSab(xStart,yStart,x,y);
+            if(newSab === Infinity){
+              newSab = 0
+            }
+            if(newSab < Sab){
+              model.mesh.position.set(newX,newY,newZ)  
+            } else {
+              console.log("newRow")
+              const newActiveRow = window.mergin_mode.vectors.data.filter(v=>v.id == model.vectorId)[0].array[0][activeRow + 1];
+              if(!newActiveRow) {
+                  const startActiveRow = window.mergin_mode.vectors.data.filter(v=>v.id == model.vectorId)[0].array[0][0];
+
+                  model.mesh.position.set(startActiveRow[0],startActiveRow[1],startActiveRow[2]);
+                  setModelRuntimeInfo(model.id,{animating:true,activeRow:0})
+              } else {
+                  model.mesh.position.set(newActiveRow[0],newActiveRow[1],newActiveRow[2]);
+                  setModelRuntimeInfo(model.id,{animating:true,activeRow:activeRow + 1})
+                  // model.mesh.rotation.set(model.mesh.rotation.x,model.mesh.rotation.y,newActiveRow[3]/63.6619772367581)
+                  // model.mesh.rotation.y = (-newActiveRow[3] + 200)/63.6619772367581
+                  // const axisX = new Vector3(1, 0, 0);
+                  // const axisY = new Vector3(0, 1, 0);
+                  const axisZ = new THREE.Vector3(0, 0, 1);
+                  // mesh.rotateOnWorldAxis(axisX, rot.x);
+                  // mesh.rotateOnWorldAxis(axisY, rot.y);
+                  model.mesh.rotateOnWorldAxis(axisZ, (-newActiveRow[3] + activeRowData[3])/63.6619772367581);
+              }
+            }
+            
+          }
+        })
+        // console.log(pointer.position)
         renderer.render( scene, camera );
       }
 

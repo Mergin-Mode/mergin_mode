@@ -31,3 +31,16 @@ export const setLayers = layers => ({
   type: 'SET_LAYERS',
   layers
 })
+
+export const setModelLayer = layer => ({
+  type: 'SET_MODEL_LAYER',
+  layer
+})
+
+export const setModelRuntimeInfo = (modelId,info) => ({
+  type: 'SET_MODEL_RUNTIME_INFO',
+    modelId,
+  runtimeInfo:{
+    ...info
+  }
+})

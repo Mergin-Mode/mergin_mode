@@ -11,23 +11,7 @@ function ModelList(props) {
     <div className="ModelList container">
       <h3>{props.title}</h3>
       <select onChange={e=> {
-        // onChange(setVector,e.target.value)
         const v = props.vectors.filter(vec => vec.id == e.target.value)[0].array[0];
-        // const newArray = [];
-        // v.map(a=>{newArray = newArray.concat(v)});
-        // geometry.setAttribute( 'position', new THREE.BufferAttribute( newArray, 3 ) );
-        // props.plane.geometry =
-        // const generateTerrain = (g) => {
-        //   const pos = g.getAttribute("position");
-        //   const pa = pos.array;
-        //   const hVerts = g.parameters.width;
-        //   const wVerts = g.parameters.height;
-        //   for (let j = 2,i=0; j < pa.length; j+=3,i++) {
-        //       pa[j] = 0;
-        //   }
-        //   pos.needsUpdate = true;
-        //   g.computeVertexNormals();
-        // };
         var positions = props.plane.geometry.attributes.position.array;
         var x, y, z, index;
         x = y = z = index = 0;
@@ -52,9 +36,6 @@ function ModelList(props) {
               function () {},  // onProgress function
               function ( error ) { console.log( error ) } // onError function
           );
-        
-        // world
-        // generateTerrain(props.plane.geometry);
       }}>
         <option value={0} selected={vector == 0}>Select</option>
         {props.vectors.map(v=><option value={v.id} selected={vector == v.id}>{v.name}</option>)}

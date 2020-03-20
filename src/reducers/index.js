@@ -1,4 +1,8 @@
 import { combineReducers } from 'redux'
+window.mergin_mode = {
+	modelLayer: [],
+	vectors:[]
+}
 const initialState = {
 	layers:[
 	  {
@@ -62,6 +66,7 @@ const initialState = {
 	vectors:{
 		data:[]
 	},
+	modelLayer:[],
 	section:{
 		active:null,
 		title:null
@@ -80,7 +85,7 @@ const api = (state = initialState, action) => {
 	  			data:[
 	  				...state.models.data,
 	  				{
-	  					id:[action.id],
+	  					id:action.id,
 	  					mesh:action.model.object,
 	  					name:action.model.name,
 	  					size:action.model.size
@@ -88,13 +93,14 @@ const api = (state = initialState, action) => {
 	  			]
 	  		}
 	  	)});
-	case "LOAD_VECTOR":
-	  	return Object.assign({},state, {
+	case "LOAD_VECTOR":{
+
+		const newState = Object.assign({},state, {
 	  		vectors: Object.assign({},state.vectors,{
 	  			data:[
 	  				...state.vectors.data,
 	  				{
-	  					id:[action.id],
+	  					id:action.id,
 	  					array:action.vector.array,
 	  					name:action.vector.name,
 	  					size:action.vector.size
@@ -102,6 +108,9 @@ const api = (state = initialState, action) => {
 	  			]
 	  		}
 	  	)});
+	  	window.mergin_mode.vectors = newState.vectors;
+	  	return newState; 
+	}
   	case "CHANGE_SECTION":
 	  	return Object.assign({},state,{
 	  		section:Object.assign({},state.section,{
@@ -121,6 +130,26 @@ const api = (state = initialState, action) => {
 		return Object.assign( {},state,{
 			layers: action.layers
 	  	});
+	case "SET_MODEL_LAYER":{
+		const newState = Object.assign( {},state,{
+			modelLayer: [...state.modelLayer, action.layer]
+	  	});
+	  	window.mergin_mode.modelLayer = newState.modelLayer;
+		return newState; 
+	}
+	case "SET_MODEL_RUNTIME_INFO":{
+		const newState = Object.assign( {},state,{
+			modelLayer: [...state.modelLayer.map(m=>{
+				console.log(m.id,action.modelId)
+				if(m.id == action.modelId){
+					m.runtimeInfo = action.runtimeInfo
+				};
+				return m;
+			})]
+	  	});
+	  	window.mergin_mode.modelLayer = newState.modelLayer;
+		return newState; 
+	}
     default:
       return state
   }
