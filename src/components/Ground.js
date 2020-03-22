@@ -20,13 +20,13 @@ function ModelList(props) {
 
             index ++; 
             index ++;
-            if(i==0){
-            positions[ index ++ ] = 200;
+            // if(i==0){
+            // positions[ index ++ ] = 200;
 
-            }else {
+            // }else {
 
             positions[ index ++ ] = (((v[i] ||[])[2]) || 0)*0.01;
-            }
+            // }
 
         }
         props.plane.geometry.attributes.position.needsUpdate = true;

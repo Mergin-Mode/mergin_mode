@@ -151,7 +151,9 @@ function App(props) {
       <SplitPane split="vertical" minSize={50} maxSize={-50} defaultSize={"40%"} onChange={elements.onWindowResize}>
         <LayerPanel />
         <SplitPane split="horizontal" minSize={50} maxSize={-50} defaultSize={"60%"} onChange={elements.onWindowResize}>
-          <div id = "three-map" />
+          <div id = "three-map" >
+          <div id="axes-helper"></div>
+          </div>
           {props.section!== null && allClasses(props.section)}
         </SplitPane>
       </SplitPane>

@@ -127,7 +127,6 @@ function ModelList(props) {
 
                   } else {
                     mesh = d.mesh.clone();
-
                   }
                   // const pos = JSON.parse(position[d.id]);
                   // pos.x = Number(pos.x);

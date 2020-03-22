@@ -59,6 +59,7 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
       var mouse = new THREE.Vector2();
 
         const host = document.getElementById("three-map");
+        const axesHost = document.getElementById("axes-helper");
       // init();
       //render(); // remove when using next line for animation loop (requestAnimationFrame)
 
@@ -84,27 +85,55 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
 
 
         scene = new THREE.Scene();
-        scene.background = new THREE.Color( 0x000000 );
+        const AxesScene = new THREE.Scene();
+        // scene.background = new THREE.Color( 0x000000,0 );
         // scene.fog = new THREE.FogExp2( 0xcccccc, 0.002 );
-        renderer = new THREE.WebGLRenderer( { antialias: true } );
+        renderer = new THREE.WebGLRenderer( { antialias: true,alpha:true } );
         renderer.setPixelRatio( window.devicePixelRatio );
+        renderer.setClearColor( 0x000000, 0 )
         renderer.setSize( host.clientWidth, host.clientHeight );
-        renderer.shadowMap.enabled = true;
+
+        const renderer2 = new THREE.WebGLRenderer( { antialias: true,alpha:true } );
+        renderer2.setPixelRatio( window.devicePixelRatio );
+        renderer2.setClearColor( 0x000000, 0 )
+        renderer2.setSize( axesHost.clientWidth, axesHost.clientHeight );
 
 
-        document.getElementById("three-map").appendChild( renderer.domElement );
+        host.appendChild( renderer.domElement );
+        axesHost.appendChild( renderer2.domElement );
         camera = new THREE.PerspectiveCamera( 60, host.clientWidth / host.clientHeight, 1, 10000 );
+        // camera = new THREE.OrthographicCamera( host.clientWidth/-2,host.clientWidth/2,host.clientHeight/2,host.clientHeight/-2, 1, 10000 );
         camera.position.set( 80, 80, 80 );
         camera.up.set(0,0,1);
+
         // controls
         controls = new OrbitControls( camera, renderer.domElement );
         //controls.addEventListener( 'change', render ); // call this only in static scenes (i.e., if there is no animation loop)
         controls.enableDamping = true; // an animation loop is required when either damping or auto-rotation are enabled
         controls.dampingFactor = 0.05;
         controls.screenSpacePanning = false;
-        controls.minDistance = 10;
+        controls.minDistance = 1;
         controls.maxDistance = 1000;
         controls.maxPolarAngle = Math.PI / 2;
+
+        
+
+        const camera2 = new THREE.PerspectiveCamera( 60, axesHost.clientWidth / axesHost.clientHeight, 1, 10000 );
+        // const camera2 = new THREE.OrthographicCamera( axesHost.clientWidth/-2,axesHost.clientWidth/2,axesHost.clientHeight/2,axesHost.clientHeight/-2, 1, 10000 );
+        // camera2.position.sub( camera.position,controls2.target );
+        camera2.position.set(6,6,6);
+        camera2.lookAt( AxesScene.position );
+
+        const controls2 = new OrbitControls( camera2, renderer.domElement );
+        //controls.addEventListener( 'change', render ); // call this only in static scenes (i.e., if there is no animation loop)
+        controls2.enableDamping = true; // an animation loop is required when either damping or auto-rotation are enabled
+        controls2.dampingFactor = 0.05;
+        controls2.screenSpacePanning = false;
+        controls2.maxPolarAngle = Math.PI / 2;
+        controls2.enablePan = false;
+        controls2.enableZoom = false;
+        controls2.update();
+
         // world
         var geometry = new THREE.PlaneBufferGeometry( 100, 100, 99, 99 );
         generateTerrain(geometry)        
@@ -160,15 +189,15 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
         // scene.add( lhelper );
 
         var axesHelper = new THREE.AxesHelper( 5 );
-        scene.add( axesHelper );
-
+        AxesScene.add( axesHelper );
+        console.log(AxesScene)
         var light = new THREE.DirectionalLight( 0x002288 );
         light.position.set( - 0, - 0, - 100 );
         scene.add( light );
 
 
-        var lhelper = new THREE.DirectionalLightHelper( light, 5 );
-        scene.add( lhelper );        
+        // var lhelper = new THREE.DirectionalLightHelper( light, 5 );
+        // scene.add( lhelper );        
 
         var light = new THREE.AmbientLight( 0x666666 );
         scene.add( light );
@@ -178,6 +207,23 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
         var material = new THREE.MeshBasicMaterial( {color: 0xff0000} );
         pointer = new THREE.Mesh( geometry, material );
         scene.add( pointer );
+
+         var loader = new THREE.TextureLoader();
+          loader.crossOrigin = "";
+          loader.load('../assets/sky.jpg',
+              function( texture ) {
+                var geometry = new THREE.SphereGeometry( 150, 32, 32 );
+                var material = new THREE.MeshBasicMaterial( { map: texture, side: THREE.BackSide } );
+                var sky = new THREE.Mesh( geometry, material );
+                sky.rotation.set(Math.PI/2,0,0)
+                scene.add(sky)
+
+              },
+              function () {},  // onProgress function
+              function ( error ) { console.log( error ) } // onError function
+          );
+
+        
 
         // var geometry = new THREE.SphereGeometry( 1, 32, 32 );
         // var material = new THREE.MeshBasicMaterial( {color: 0xffffff} );
@@ -211,12 +257,14 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
       function onWindowResize() {
         camera.aspect = host.clientWidth / host.clientHeight;
         camera.updateProjectionMatrix();
+        camera2.updateProjectionMatrix();
         renderer.setSize( host.clientWidth, host.clientHeight );
       }
 
       function animate() {
         requestAnimationFrame( animate );
         controls.update(); // only required if controls.enableDamping = true, or if controls.autoRotate = true
+        controls2.update(); // only required if controls.enableDamping = true, or if controls.autoRotate = true
         render();
       }
 
@@ -270,6 +318,7 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
           }
         })
         renderer.render( scene, camera );
+        renderer2.render( AxesScene, camera2 );
       }
 
       animate();
