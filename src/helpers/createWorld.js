@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls.js';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import {CalculateDeltaPosition} from "./CalculateDeltaPosition";
@@ -107,7 +107,7 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
         camera.up.set(0,0,1);
 
         // controls
-        controls = new OrbitControls( camera, renderer.domElement );
+        controls = new TrackballControls( camera, renderer.domElement );
         //controls.addEventListener( 'change', render ); // call this only in static scenes (i.e., if there is no animation loop)
         controls.enableDamping = true; // an animation loop is required when either damping or auto-rotation are enabled
         controls.dampingFactor = 0.05;
@@ -124,7 +124,7 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
         camera2.position.set(6,6,6);
         camera2.lookAt( AxesScene.position );
 
-        const controls2 = new OrbitControls( camera2, renderer.domElement );
+        const controls2 = new TrackballControls( camera2, renderer.domElement );
         //controls.addEventListener( 'change', render ); // call this only in static scenes (i.e., if there is no animation loop)
         controls2.enableDamping = true; // an animation loop is required when either damping or auto-rotation are enabled
         controls2.dampingFactor = 0.05;
@@ -153,7 +153,7 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
         // helper = new THREE.Mesh( geometry, material );
         // scene.add( helper );
 
-        scene.add( plane );
+        // scene.add( plane );
 
 
         // var geometry = new THREE.CylinderBufferGeometry( 0, 10, 30, 4, 1 );
@@ -206,17 +206,17 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
         var geometry = new THREE.SphereGeometry( 1, 32, 32 );
         var material = new THREE.MeshBasicMaterial( {color: 0xff0000} );
         pointer = new THREE.Mesh( geometry, material );
-        scene.add( pointer );
+        // scene.add( pointer );
 
-         var loader = new THREE.TextureLoader();
-          loader.crossOrigin = "";
-          loader.load('../assets/sky.jpg',
+        var loader = new THREE.TextureLoader();
+        loader.crossOrigin = "";
+        loader.load('../assets/sky.jpg',
               function( texture ) {
                 var geometry = new THREE.SphereGeometry( 150, 32, 32 );
                 var material = new THREE.MeshBasicMaterial( { map: texture, side: THREE.BackSide } );
                 var sky = new THREE.Mesh( geometry, material );
                 sky.rotation.set(Math.PI/2,0,0)
-                scene.add(sky)
+                // scene.add(sky)
 
               },
               function () {},  // onProgress function
