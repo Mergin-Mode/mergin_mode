@@ -216,7 +216,7 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
                 var material = new THREE.MeshBasicMaterial( { map: texture, side: THREE.BackSide } );
                 var sky = new THREE.Mesh( geometry, material );
                 sky.rotation.set(Math.PI/2,0,0)
-                // scene.add(sky)
+                scene.add(sky)
 
               },
               function () {},  // onProgress function
