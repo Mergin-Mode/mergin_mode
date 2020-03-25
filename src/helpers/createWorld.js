@@ -1,5 +1,6 @@
 import * as THREE from 'three';
-import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls.js';
+// import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls.js';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import {CalculateDeltaPosition} from "./CalculateDeltaPosition";
@@ -86,7 +87,7 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
 
         scene = new THREE.Scene();
         const AxesScene = new THREE.Scene();
-        // scene.background = new THREE.Color( 0x000000,0 );
+        scene.background = new THREE.Color( 0x000000,0 );
         // scene.fog = new THREE.FogExp2( 0xcccccc, 0.002 );
         renderer = new THREE.WebGLRenderer( { antialias: true,alpha:true } );
         renderer.setPixelRatio( window.devicePixelRatio );
@@ -106,8 +107,8 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
         camera.position.set( 80, 80, 80 );
         camera.up.set(0,0,1);
 
-        // controls
-        controls = new TrackballControls( camera, renderer.domElement );
+        // controls = new TrackballControls( camera, renderer.domElement );
+        controls = new OrbitControls( camera, renderer.domElement );
         //controls.addEventListener( 'change', render ); // call this only in static scenes (i.e., if there is no animation loop)
         controls.enableDamping = true; // an animation loop is required when either damping or auto-rotation are enabled
         controls.dampingFactor = 0.05;
@@ -124,7 +125,7 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
         camera2.position.set(6,6,6);
         camera2.lookAt( AxesScene.position );
 
-        const controls2 = new TrackballControls( camera2, renderer.domElement );
+        const controls2 = new OrbitControls( camera2, renderer.domElement );
         //controls.addEventListener( 'change', render ); // call this only in static scenes (i.e., if there is no animation loop)
         controls2.enableDamping = true; // an animation loop is required when either damping or auto-rotation are enabled
         controls2.dampingFactor = 0.05;
@@ -216,7 +217,7 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
                 var material = new THREE.MeshBasicMaterial( { map: texture, side: THREE.BackSide } );
                 var sky = new THREE.Mesh( geometry, material );
                 sky.rotation.set(Math.PI/2,0,0)
-                scene.add(sky)
+                // scene.add(sky)
 
               },
               function () {},  // onProgress function
