@@ -2,7 +2,7 @@ import {ThemeliodesProblima_1} from "./ThemeliodiProblimata";
 import {posZ} from "./computeZ";
 
 export const CalculateDeltaPosition = (Xa,Ya,Za,Gab,delta,dem) => {
-	const Sab = delta; //distance in meters per second (50km/h)
+	const Sab = delta*1.2; //distance in meters per second (50km/h)
 	let posXY = ThemeliodesProblima_1(Xa,Ya,Sab,Gab);
 	const newZ =posZ(posXY.Xb,posXY.Yb,dem);
  	// const DZ = posZ(posXY.Xb,posXY.Yb,dem)-Za;

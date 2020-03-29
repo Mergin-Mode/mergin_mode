@@ -5,7 +5,7 @@ const Xmax = 50;
 const Ymax = 50;
 const XZStep=100/99;
 const YZStep=100/99;
-const zScale = 100;
+const zScale = 150;
 const zShift = 0;
 const DemWidth = 100;
 
@@ -28,7 +28,7 @@ export const posZ=(positionX,positionY,dem) =>{
 	//check X axis
 
 		var axeZ=((intY)*DemWidth)+intX;//calculate height
-		console.log(axeZ);
+		// console.log(axeZ);
 		if (!dem[axeZ] || !dem[axeZ + 1]) return 0;
 		var dXZ=dem[axeZ][2] - dem[axeZ+1][2];
 		var ipotinousaX= Math.sqrt(Math.pow((dXZ/zScale - zShift),2)+Math.pow(XZStep,2));
@@ -83,7 +83,7 @@ export const posZ=(positionX,positionY,dem) =>{
 	else{
 	//check X axis
 		var axeZ=((intY+1)*DemWidth)+intX+1;//calculate height
-		console.log(axeZ)
+		// console.log(axeZ)
 		if (!dem[axeZ] || !dem[axeZ-1]) return 0;
 		var dXZ=(dem[axeZ][2] - dem[axeZ-1][2]);
 		var ipotinousaX= Math.sqrt(Math.pow((dXZ/zScale - zShift),2)+Math.pow(XZStep,2));
@@ -133,6 +133,6 @@ export const posZ=(positionX,positionY,dem) =>{
 		}
 
 	}
-	console.log(FHeight2)
+	// console.log(FHeight2)
 	return Number(FHeight2.toFixed(4));
 }

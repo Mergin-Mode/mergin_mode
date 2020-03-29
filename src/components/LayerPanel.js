@@ -68,7 +68,7 @@ function LayerPanel (props) {
     
 
     return (
-      <div style={{ margin: '0 20px' }}>
+      <div className="layers-panel" style={{ margin: '0 20px' }}>
         <Tree
           className="myCls"
           showLine={true}

@@ -22,7 +22,7 @@ import createWorld from "../helpers/createWorld";
 import SplitPane from 'react-split-pane';
 import Modal from "react-modal";
 import LayerPanel from "./LayerPanel"
-import {loadModel,changeSection,setModelLayer} from "../actions";
+import {loadModel,changeSection,setModelLayer,setLayers} from "../actions";
 
 
 function ModelList(props) {
@@ -117,45 +117,72 @@ function ModelList(props) {
                     runtimeInfo:{animating:true,activeRow:0},
                     mesh
                   });
-                  return false;
+                } else {
+                  theVector.array[0].map(r=>{
+                    let mesh;
+                    if(d.name.includes("glb") || d.name.includes("gltf")){
+                    mesh = SkeletonUtils.clone( d.mesh.scene );
+
+                    } else {
+                      mesh = d.mesh.clone();
+                    }
+                    // const pos = JSON.parse(position[d.id]);
+                    // pos.x = Number(pos.x);
+                    // pos.y = Number(pos.y);
+                    // pos.z = Number(pos.z);
+                    const rot = JSON.parse(rotation[d.id]);
+                    rot.x = Number(rot.x);
+                    rot.y = Number(rot.y);
+                    rot.z = Number(rot.z);
+                    const axisX = new THREE.Vector3(1, 0, 0);
+                    const axisY = new THREE.Vector3(0, 1, 0);
+                    const axisZ = new THREE.Vector3(0, 0, 1);
+                    mesh.rotateOnWorldAxis(axisX, rot.x);
+                    mesh.rotateOnWorldAxis(axisY, rot.y);
+                    mesh.rotateOnWorldAxis(axisZ, rot.z);
+                    // mesh.rotateOnWorldAxis(axisZ, ( )/63.6619772367581);
+
+                    const sca = JSON.parse(scale[d.id]);
+                    sca.x = Number(sca.x);
+                    sca.y = Number(sca.y);
+                    sca.z = Number(sca.z);
+                    // mesh.rotation.set(rot.x,rot.y,rot.z);
+
+                    mesh.scale.set(sca.x,sca.y,sca.z);
+                    mesh.traverse(function (child) {
+                          if (child instanceof THREE.Mesh) {
+
+                              // apply texture
+                              // child.material =  new THREE.MeshLambertMaterial({color: 0x00ff00, transparent: true, opacity: 0.5});
+                              child.material = new THREE.MeshPhongMaterial({color:"#999",wireframe:true});
+
+                              child.material.needsUpdate = true;
+                              // child.material.alphaTest = 0.5;
+                              // child.material.transparent = true;
+                              // child.material.depthWrite = true;
+
+
+                          }
+                      });
+                    if(theVector.name.includes("tree")) {
+
+                      r[2] *=0.5;
+                      
+                      sca.x = (Math.random() * sca.x/2 + sca.x/2)
+                      sca.y = (Math.random() * sca.y/2 + sca.y/2)
+                      sca.z = (Math.random() * sca.z/2 + sca.z/2)
+                    }
+                    mesh.position.set(...r);
+                    mesh.castShadow = true;
+                    mesh.receiveShadow = true;
+
+
+                    props.scene.add(mesh)
+                  })
                 }
-
-                theVector.array[0].map(r=>{
-                  let mesh;
-                  if(d.name.includes("glb") || d.name.includes("gltf")){
-                  mesh = SkeletonUtils.clone( d.mesh.scene );
-
-                  } else {
-                    mesh = d.mesh.clone();
-                  }
-                  // const pos = JSON.parse(position[d.id]);
-                  // pos.x = Number(pos.x);
-                  // pos.y = Number(pos.y);
-                  // pos.z = Number(pos.z);
-                  const rot = JSON.parse(rotation[d.id]);
-                  rot.x = Number(rot.x);
-                  rot.y = Number(rot.y);
-                  rot.z = Number(rot.z);
-                  const axisX = new THREE.Vector3(1, 0, 0);
-                  const axisY = new THREE.Vector3(0, 1, 0);
-                  const axisZ = new THREE.Vector3(0, 0, 1);
-                  mesh.rotateOnWorldAxis(axisX, rot.x);
-                  mesh.rotateOnWorldAxis(axisY, rot.y);
-                  mesh.rotateOnWorldAxis(axisZ, rot.z);
-                  // mesh.rotateOnWorldAxis(axisZ, ( )/63.6619772367581);
-
-                  const sca = JSON.parse(scale[d.id]);
-                  sca.x = Number(sca.x);
-                  sca.y = Number(sca.y);
-                  sca.z = Number(sca.z);
-                  // mesh.rotation.set(rot.x,rot.y,rot.z);
-
-                  mesh.scale.set(sca.x,sca.y,sca.z);
-                  mesh.position.set(...r);
-                  mesh.castShadow = true;
-                  mesh.receiveShadow = true;
-                  props.scene.add(mesh)
-                })
+                const newLayers = JSON.parse(JSON.stringify(props.layers));
+                newLayers[1].children[3].children.push({ key: `1-3-${newLayers[1].children[3].children.length}`, title: d.name + "_" + theVector.name, checkable:true,selectable:false})
+                props.setLayers(newLayers);
                 
               }} >Add To Scene</button>
                 </React.Fragment>
@@ -191,7 +218,8 @@ const mapStateToProps = state => {
     models:state.api.models,
     title:state.api.section.title,
     scene:state.api.scene,
-    vectors:state.api.vectors.data
+    vectors:state.api.vectors.data,
+    layers:state.api.layers
   };
 };
 
@@ -199,7 +227,8 @@ const mapDispatchToProps = dispatch => {
   return {
     loadModel:model =>dispatch(loadModel(model)),
     changeSection:section => dispatch(changeSection(section)),
-    setModelLayer: layer => dispatch(setModelLayer(layer))
+    setModelLayer: layer => dispatch(setModelLayer(layer)),
+    setLayers: layers => dispatch(setLayers(layers))
   };
 };
 

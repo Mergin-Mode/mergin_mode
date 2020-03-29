@@ -16,16 +16,18 @@
 }
 
 .logo-container {
-  width:150px;
-  height: 56px;
-  background: #8a8a8a33;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 15px;
+    /*width: 140px; */
+    /* height: 56px; */
+    /* margin-left: -70px; */
+    display: flex;
+    /* margin-top: -4px; */
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    background: #fffcfc;
+    margin-left: -30px;
 }
 .navbar-brand {
-  background-color: white;
   padding: 0px;
   margin: 0px 10px;
 }
@@ -41,10 +43,11 @@
 
 
 .logo{
-  background:url("../assets/logo-transparent.png") no-repeat;
-  background-size:100%;
-  width:40px;
-  height: 30px;
+    background: url("../assets/logo-transparent.png") no-repeat;
+    background-size: 130%;
+    width: 89px;
+    height: 60px;
+    background-position: center;
 }
 .form > div {
   height: 40px !important;
@@ -120,10 +123,10 @@
 .Pane.horizontal.Pane2 {
   overflow: auto;
 }
-.Pane.vertical.Pane1 > div{
+.layers-panel{
   margin:20px 0 !important;
 }
-.Pane.horizontal.Pane2 {
+.Pane.horizontal.Pane2, .Pane.vertical.Pane2 .Pane.vertical.Pane2{
   padding: 15px;
   color:whitesmoke;
 }
@@ -135,7 +138,8 @@
   width: 100%;
   height: 100%;
   position: relative;
-  /*background:url("../assets/camera.jpg") no-repeat;*/
+  overflow: hidden;
+  /*background:url("../assets/camera1.jpg") no-repeat;*/
   background-size:100% 100%;
 }
 #axes-helper{

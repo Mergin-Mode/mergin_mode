@@ -148,7 +148,7 @@ const api = (state = initialState, action) => {
 	case "SET_MODEL_RUNTIME_INFO":{
 		const newState = Object.assign( {},state,{
 			modelLayer: [...state.modelLayer.map(m=>{
-				console.log(m.id,action.modelId)
+				// console.log(m.id,action.modelId)
 				if(m.id == action.modelId){
 					m.runtimeInfo = action.runtimeInfo
 				};

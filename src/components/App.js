@@ -89,7 +89,7 @@ function App(props) {
     const loader = new loaders.FBXLoader();
     
     loader.load2(file, object => {
-        console.log(object.animations)
+        // console.log(object.animations)
         // if(object.animations.length > 0) {
         //   elements.mixer = new THREE.AnimationMixer( object );
         //   var action = elements.mixer.clipAction( object.animations[ 0 ] );
@@ -122,7 +122,7 @@ function App(props) {
     <div className="App">
       <header className="App-header">
         <Navbar expand="md" className="navbar navbar-dark">
-          <NavbarBrand href="/"><div className="logo-container"><div className="logo"/>Mergin' Mode</div></NavbarBrand>
+          <NavbarBrand href="/"><div className="logo-container"><div className="logo"/></div></NavbarBrand>
           <NavbarToggler onClick={toggleMenu} />
           <Collapse isOpen={menuOpen} navbar>
             <Nav className="mr-auto" navbar>
@@ -140,7 +140,7 @@ function App(props) {
             </Nav>
             <NavbarText>
                 <NavLink href="https://github.com/prieston/mergin_mode" target="_blank">
-                <i class="fab fa-github"></i>
+                <i className="fab fa-github"></i>
                 <span>GitHub</span>
                 </NavLink>
             </NavbarText>
@@ -151,9 +151,52 @@ function App(props) {
       <SplitPane split="vertical" minSize={50} maxSize={-50} defaultSize={"40%"} onChange={elements.onWindowResize}>
         <LayerPanel />
         <SplitPane split="horizontal" minSize={50} maxSize={-50} defaultSize={"60%"} onChange={elements.onWindowResize}>
-          <div id = "three-map" >
-          <div id="axes-helper"></div>
-          </div>
+          <SplitPane split="vertical" minSize={50} maxSize={-50} defaultSize={"60%"} onChange={elements.onWindowResize}>
+            <div id = "three-map" >
+              <div id="axes-helper"></div>
+            </div>
+            <div>
+              <h2>Available Models</h2>
+              <div style={{
+                display:"inline-block",
+                width:"150px",
+                height:"150px",
+                "backgroundImage":"url('../assets/soldier.png')",
+                "backgroundRepeat":"no-repeat",
+                "backgroundPosition":"center",
+                "backgroundSize":"100% 100%",
+                marginBottom:"20px",
+                position:"relative"
+              }}>
+                <span style={{position:"absolute",bottom:"-20px"}}>green_leaf_tree.fbx</span>
+                </div>
+                <div style={{
+                display:"inline-block",
+                marginBottom:"20px",
+                marginLeft:"20px",
+                width:"150px",
+                height:"150px",
+                "backgroundImage":"url('../assets/tree1.png')",
+                "backgroundRepeat":"no-repeat",
+                position:"relative",
+                "backgroundPosition":"center",
+                "backgroundSize":"100% 100%"}}>
+                <span style={{position:"absolute",bottom:"-20px"}}>red_leaf_tree.fbx</span>
+                </div>
+                <div style={{
+                display:"inline-block",
+                marginBottom:"20px",
+                width:"150px",
+                height:"150px",
+                "backgroundImage":"url('../assets/tree2.png')",
+                position:"relative",
+                "backgroundRepeat":"no-repeat",
+                "backgroundPosition":"center",
+                "backgroundSize":"100% 100%"}}>
+                <span style={{position:"absolute",bottom:"-20px"}}>Soldier.glb</span>
+                </div>
+            </div>
+          </SplitPane>
           {props.section!== null && allClasses(props.section)}
         </SplitPane>
       </SplitPane>
@@ -194,7 +237,7 @@ function App(props) {
 
                       const {name,size} = files[0];
                       const newLayers = JSON.parse(JSON.stringify(props.layers));
-                      newLayers[1].children[2].children.push({ key: `1-2-${newLayers[1].children[2].children.length}`, title: name, checkable:false,selectable:false})
+                      newLayers[1].children[2].children.push({ key: `1-2-${newLayers[1].children[2].children.length}`, title: name, checkable:true,selectable:false})
                       props.setLayers(newLayers);
                       if(name.includes("anime")){
                         for(let i=0;i< rows[0].length - 1;i++) {
@@ -220,7 +263,7 @@ function App(props) {
                 } else if (extention === "glb" || extention === "gltf") {
                   loadGLTFModel(files);
                 }
-                console.log(vectorExt)
+                // console.log(vectorExt)
               }}>Load</button>
             </div>
             <div className="col-sm-6">

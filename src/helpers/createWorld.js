@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-// import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls.js';
+import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
@@ -87,7 +87,7 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
 
         scene = new THREE.Scene();
         const AxesScene = new THREE.Scene();
-        scene.background = new THREE.Color( 0x000000,0 );
+        scene.background = new THREE.Color( 0x000000 );
         // scene.fog = new THREE.FogExp2( 0xcccccc, 0.002 );
         renderer = new THREE.WebGLRenderer( { antialias: true,alpha:true } );
         renderer.setPixelRatio( window.devicePixelRatio );
@@ -139,7 +139,7 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
         var geometry = new THREE.PlaneBufferGeometry( 100, 100, 99, 99 );
         generateTerrain(geometry)        
 
-        var material = new THREE.MeshPhongMaterial( {color: "#222", side: THREE.DoubleSide} );
+        var material = new THREE.MeshPhongMaterial( {color: "#000", side: THREE.DoubleSide} );
 
         material.flatShading = true
 
@@ -154,7 +154,7 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
         // helper = new THREE.Mesh( geometry, material );
         // scene.add( helper );
 
-        // scene.add( plane );
+        scene.add( plane );
 
 
         // var geometry = new THREE.CylinderBufferGeometry( 0, 10, 30, 4, 1 );
@@ -191,7 +191,6 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
 
         var axesHelper = new THREE.AxesHelper( 5 );
         AxesScene.add( axesHelper );
-        console.log(AxesScene)
         var light = new THREE.DirectionalLight( 0x002288 );
         light.position.set( - 0, - 0, - 100 );
         scene.add( light );
@@ -253,6 +252,7 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
 
           pointer.position.copy( intersects[ 0 ].point );
         }
+          console.log(pointer.position)
 
       }
       function onWindowResize() {
@@ -263,7 +263,11 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
       }
 
       function animate() {
+        setTimeout( function() {
+
         requestAnimationFrame( animate );
+
+    }, 1000 / 30 );
         controls.update(); // only required if controls.enableDamping = true, or if controls.autoRotate = true
         controls2.update(); // only required if controls.enableDamping = true, or if controls.autoRotate = true
         render();
@@ -286,7 +290,12 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
           const zStart = activeRowData[2];
           const Gab = activeRowData[3];
           const Sab = activeRowData[4];
-          if(animating) {
+          if(
+            animating &&
+            typeof x !== "undefined" &&
+            typeof y !== "undefined" &&
+            typeof z !== "undefined"
+            ) {
             const dem =window.mergin_mode.plane.dem;
             const {x:newX,y:newY,z:newZ} = CalculateDeltaPosition(Number(x.toFixed(4)),Number(y.toFixed(4)),Number(z.toFixed(4)),Gab,delta,dem);
             let newSab = calculateSab(xStart,yStart,x,y);
@@ -301,7 +310,7 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
                   const startActiveRow = window.mergin_mode.vectors.data.filter(v=>v.id == model.vectorId)[0].array[0][0];
 
                   model.mesh.position.set(startActiveRow[0],startActiveRow[1],startActiveRow[2]);
-                  setModelRuntimeInfo(model.id,{animating:true,activeRow:0})
+                  setModelRuntimeInfo(model.id,{animating:false,activeRow:0})
               } else {
                   model.mesh.position.set(newActiveRow[0],newActiveRow[1],newActiveRow[2]);
                   setModelRuntimeInfo(model.id,{animating:true,activeRow:activeRow + 1})
@@ -325,7 +334,7 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
       animate();
        
       window.addEventListener( 'resize', onWindowResize, false );
-      window.addEventListener( 'mousedown', onMouseMove, false );
+      window.addEventListener( 'click', onMouseMove, false );
 
       partials = {plane,pointer};
       return {camera,controls,scene,renderer,pointer,partials,loaders,onWindowResize}
