@@ -1,11 +1,14 @@
 .model-item {
-	padding: 15px;
-	cursor: pointer;
+	padding: 20px;
+	/*cursor: pointer;*/
 	position: relative;
-	border:1px solid #28271d;
+	/*border:1px solid #28271d;*/
+	background:#0d0d0e;
+
 
 }
 .model-item .settings{
+	cursor: pointer;
 	position: absolute;
 	top:5px;
 	right: 5px;
@@ -13,14 +16,30 @@
 	height:16px;
 }
 .model-item:hover{
-	background:#28271d;
+	/*background:#28558e;*/
 }
 .model-item-inner {
-	background:#28271d;
+	background:#28558e33;
 	margin: 15px;
 	padding:10px;
 }
+.mm-form-block{
+	margin-bottom: 15px;
+}
+.mm-btn{
+	opacity: 1!important;
+	background-color: black;
+	border-radius: 10px;
+	border: none;
+	cursor: pointer;
+	width:100%;
+	color: whitesmoke;
+    height: 40px;
+}
 
+.mm-btn:hover{
+	background-color:#333 !important;
+}
 .model-item-inner > button{
 	margin-top:30px;
 }

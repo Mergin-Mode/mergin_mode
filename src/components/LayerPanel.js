@@ -23,7 +23,7 @@ function LayerPanel (props) {
   };
 
   const onSelect = (selectedKeys, info) => {
-    const title = info.node.title.toLowerCase();
+    const title = info.node.key;
     console.log('selected', selectedKeys, info);
     props.changeSection(selectedKeys.length ? title : null)
   };

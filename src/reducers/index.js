@@ -1,3 +1,4 @@
+import React, { Component }  from 'react';
 import { combineReducers } from 'redux'
 window.mergin_mode = {
 	modelLayer: [],
@@ -8,51 +9,57 @@ window.mergin_mode = {
 const initialState = {
 	layers:[
 	  {
-	    key: '0',
+	    key: 'models',
 	    title: 'Models',
 	    checkable:false,
 	    selectable:true,
+	    icon:<span className="layer-icon"><i className="far fa-folder"></i></span>,
 	    children: [
-
 	    ],
 	  },
 	  {
-	    key: '1',
+	    key: 'scene',
 	    title: 'Scene',
 	    checkable:false,
 	    selectable:false,
+	    icon:<span className="layer-icon"><i className="far fa-folder"></i></span>,
 	    children: [
 	      {
-	        key: '1-0',
+	        key: 'background',
 	        title: 'Background',
 	        checkable:false,
-	        selectable:false,
+	   	    icon:<span className="layer-icon"><i className="far fa-folder"></i></span>,
 	        children: [
-	        { key: '1-0-0', title: 'Color'},
-	        { key: '1-0-1', title: 'Image' },
-	        { key: '1-0-2', title: 'Video' }
+	        { key: 'background-color', title: 'Color',icon:<span className="layer-icon"><i className="fas fa-palette"></i></span>},
+	        { key: 'background-image', title: 'Image',icon:<span className="layer-icon"><i className="far fa-file-image"></i></span> },
+	        { key: 'background-video', title: 'Video',icon:<span className="layer-icon"><i className="far fa-file-video"></i></span> }
 	      ] },
 	      {
-	        key: '1-1',
+	        key: 'ground',
 	        title: 'Ground',
 	        checkable:false,
+   		    icon:<span className="layer-icon"><i className="far fa-folder"></i></span>,
+   		    // switcherIcon:<span className="layer-icon switch-icon"><i className="fas fa-chevron-right"></i></span>,
+
 	        selectable:false,
 	        children: [
-	          { key: '1-1-0', title: 'Color'},
-	          { key: '1-1-1', title: 'Image' },
-	          { key: '1-1-2', title: 'Vertices' },
+	          { key: 'ground-color', title: 'Color',icon:<span className="layer-icon"><i className="fas fa-palette"></i></span>},
+	          { key: 'ground-image', title: 'Image' ,icon:<span className="layer-icon"><i className="far fa-file-image"></i></span>},
+	          { key: 'ground-vertices', title: 'Vertices' ,icon:<span className="layer-icon"><i className="fas fa-mountain"></i></span>}
 	        ],
 	      },
 	      {
-	        key: '1-2',
+	        key: 'vector-layers',
 	        title: 'Vector Layers',
+	   	    icon:<span className="layer-icon"><i className="far fa-folder"></i></span>,
 	        checkable:false,
 	        selectable:false,
 	        children: []
 	      },
 	      {
-	        key: '1-3',
+	        key: 'model-layers',
 	        title: 'Model Layers',
+	   	    icon:<span className="layer-icon"><i className="far fa-folder"></i></span>,
 	        checkable:false,
 	        selectable:false,
 	        children: []

@@ -6,16 +6,30 @@
     list-style: none;
     outline: 0;
     color: white;
-    border-bottom: 1px solid #525252;
+    border-bottom: 1px solid #2b292f;
 }
 .rc-tree-treenode.rc-tree-treenode-selected{
-    background-color: #262525 !important;
+    background-color: #28558e !important;
 }
 .rc-tree-treenode:hover{
-	background-color:#555353;
+	background-color:#28558e33;
 }
 .rc-tree-treenode .rc-tree-node-selected {
     background-color: unset !important;
     border:none;
     opacity: 1;
+}
+
+.layer-icon {
+    display: flex;
+    color: #4f5a63;
+    font-size: 14px;
+    justify-content: center;
+    align-items: center;
+}
+
+.switch-icon {
+    background-color: #161518;
+    width: 13px;
+    display: block;
 }

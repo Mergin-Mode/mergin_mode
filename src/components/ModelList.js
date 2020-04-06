@@ -55,7 +55,6 @@ function ModelList(props) {
 
   return (
     <div className="ModelList container">
-      <h3>{props.title}</h3>
       <div className="row">
       {props.models.data.map(d=>(
         <div className="col-md-6 col-sm-6 col-xs-12">
@@ -66,57 +65,59 @@ function ModelList(props) {
                           <i className="fas fa-arrow-right"></i>
                         </span>)}
             
-            <div className="model-item-inner">
               {mode[d.id] === "info" ? (
                 <React.Fragment>
-                <div>id: {d.id}</div>
-              <div>name: {d.name}</div>
-              <div>size: {(d.size/1000/1000).toFixed(2)} Mb</div>
-              <button style ={{width:"100%"}}className="btn btn-light" onClick={()=>{
-                const theVector = props.vectors.filter(v=>{
-                  return v.id == vector[d.id]
-                }
-                )[0];
-
-                if (theVector.name.includes("anime")){
-                  let mesh;
-                  if(d.name.includes("glb") || d.name.includes("gltf")){
-                    mesh = SkeletonUtils.clone( d.mesh.scene );
-                    var mixer = startAnimation( mesh, d.mesh.animations, "Walk" );
-                    window.mergin_mode.mixers.push(mixer)
-                  } else {
-                    mesh = d.mesh.clone();
-
+                <div className="mm-form-block">
+                  <div>id: {d.id}</div>
+                  <div>name: {d.name}</div>
+                  <div>size: {(d.size/1000/1000).toFixed(2)} Mb</div>
+                </div>
+                
+                <button className="mm-btn" onClick={()=>{
+                  const theVector = props.vectors.filter(v=>{
+                    return v.id == vector[d.id]
                   }
-                  const rot = JSON.parse(rotation[d.id]);
-                  rot.x = Number(rot.x);
-                  rot.y = Number(rot.y);
-                  rot.z = Number(rot.z);
-                  const sca = JSON.parse(scale[d.id]);
-                  sca.x = Number(sca.x);
-                  sca.y = Number(sca.y);
-                  sca.z = Number(sca.z);
-                  // mesh.rotation.set(rot.x,rot.y,rot.z);
-                  const axisX = new THREE.Vector3(1, 0, 0);
-                  const axisY = new THREE.Vector3(0, 1, 0);
-                  const axisZ = new THREE.Vector3(0, 0, 1);
-                  mesh.rotateOnWorldAxis(axisX, rot.x);
-                  mesh.rotateOnWorldAxis(axisY, rot.y);
-                  // mesh.rotateOnWorldAxis(axisZ, rot.z);
-                  mesh.rotateOnWorldAxis(axisZ, (-theVector.array[0][0][3] )/63.6619772367581);
-                  // mesh.rotation.z = ((theVector.array[0][0][3])/63.6619772367581);
+                  )[0];
 
-                  mesh.scale.set(sca.x,sca.y,sca.z);
-                  mesh.position.set(...theVector.array[0][0]);
-                  mesh.castShadow = true;
-                  mesh.receiveShadow = true;
-                  props.scene.add(mesh);
-                  props.setModelLayer({
-                    id:Date.now(),
-                    vectorId:theVector.id,
-                    runtimeInfo:{animating:true,activeRow:0},
-                    mesh
-                  });
+                  if (theVector.name.includes("anime")){
+                    let mesh;
+                    if(d.name.includes("glb") || d.name.includes("gltf")){
+                      mesh = SkeletonUtils.clone( d.mesh.scene );
+                      var mixer = startAnimation( mesh, d.mesh.animations, "Walk" );
+                      window.mergin_mode.mixers.push(mixer)
+                    } else {
+                      mesh = d.mesh.clone();
+
+                    }
+                    const rot = JSON.parse(rotation[d.id]);
+                    rot.x = Number(rot.x);
+                    rot.y = Number(rot.y);
+                    rot.z = Number(rot.z);
+                    const sca = JSON.parse(scale[d.id]);
+                    sca.x = Number(sca.x);
+                    sca.y = Number(sca.y);
+                    sca.z = Number(sca.z);
+                    // mesh.rotation.set(rot.x,rot.y,rot.z);
+                    const axisX = new THREE.Vector3(1, 0, 0);
+                    const axisY = new THREE.Vector3(0, 1, 0);
+                    const axisZ = new THREE.Vector3(0, 0, 1);
+                    mesh.rotateOnWorldAxis(axisX, rot.x);
+                    mesh.rotateOnWorldAxis(axisY, rot.y);
+                    // mesh.rotateOnWorldAxis(axisZ, rot.z);
+                    mesh.rotateOnWorldAxis(axisZ, (-theVector.array[0][0][3] )/63.6619772367581);
+                    // mesh.rotation.z = ((theVector.array[0][0][3])/63.6619772367581);
+
+                    mesh.scale.set(sca.x,sca.y,sca.z);
+                    mesh.position.set(...theVector.array[0][0]);
+                    mesh.castShadow = true;
+                    mesh.receiveShadow = true;
+                    props.scene.add(mesh);
+                    props.setModelLayer({
+                      id:Date.now(),
+                      vectorId:theVector.id,
+                      runtimeInfo:{animating:true,activeRow:0},
+                      mesh
+                    });
                 } else {
                   theVector.array[0].map(r=>{
                     let mesh;
@@ -203,7 +204,6 @@ function ModelList(props) {
                 </React.Fragment>
                 )}
               
-            </div>
           </div>
         </div>
         ))}

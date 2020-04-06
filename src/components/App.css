@@ -1,8 +1,24 @@
 .App-header .navbar {
   z-index: 10;
   padding: 0 20px;
-  background-color:#39372a;
+  background-color:#161618;
+  border-bottom: 1px solid #444;
 }
+*{
+  font-size:12px;
+  -webkit-user-select: none; 
+      -webkit-touch-callout: none; 
+      -moz-user-select: none; 
+      -ms-user-select: none; 
+      user-select: none;   
+}
+*:focus{
+  outline: none !important;
+}
+::selection,::-moz-selection,select option:hover {
+  background: #28558e; /* WebKit/Blink Browsers */
+}
+
 
 .App-header .navbar a,.navbar-text{
   color:white;
@@ -12,7 +28,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0,0,0,0.2) !important;
+  background: rgba(0,0,0,0.8) !important;
 }
 
 .logo-container {
@@ -24,7 +40,7 @@
     align-items: center;
     justify-content: center;
     font-size: 15px;
-    background: #fffcfc;
+    /*background: #fffcfc;*/
     margin-left: -30px;
 }
 .navbar-brand {
@@ -41,20 +57,33 @@
   color:#999 !important;
 }
 
+.mm-dropzone{
+  background-color:#28558e33;
+  border:2px dashed #28558e;
+  border-radius: 10px;
+  padding:15px;
+  text-align: center;
 
+}
+.mm-image{
+  object-fit: cover;
+}
+.mm-slider-img{
+  height:150px;
+}
+.thumb .mm-slider-img{
+  height:auto;
+}
 .logo{
     background: url("../assets/logo-transparent.png") no-repeat;
-    background-size: 130%;
+    background-size: 100%;
     width: 89px;
     height: 60px;
     background-position: center;
 }
-.form > div {
-  height: 40px !important;
-  width: 100%;
-}
+
 .form-control {
-  margin:10px;
+  margin-top:10px;
   padding:0;
   border: none;
 
@@ -66,6 +95,8 @@
   left:unset !important;
   bottom:unset !important;
   right:unset !important;
+  color: whitesmoke !important;
+  background: rgb(18, 17, 19) !important;
 }
 
 .Resizer {
@@ -131,7 +162,7 @@
   color:whitesmoke;
 }
 .Pane{
-  background-color:#39372a !important;
+  background-color:#161618 !important;
 }
 
 #three-map{

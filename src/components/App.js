@@ -2,6 +2,7 @@ import React,{ useState,useEffect } from 'react';
 import './App.css';
 import { connect } from "react-redux";
 import * as THREE from 'three';
+import DropZone from "./layout/DropZone";
 import {ThemeliodesProblima_2} from "../helpers/ThemeliodiProblimata"
 import {
   Collapse,
@@ -27,14 +28,27 @@ import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 import * as XLSX from 'xlsx';
 
 import ModelList from "./ModelList";
+import Background from "./Background";
 import Ground from "./Ground";
+import Images from "./Images";
+import Color from "./Color";
 Modal.setAppElement('#root')
 
 function App(props) {
   const allClasses = (name) => {
+    console.log(name)
     if(name === "models" ){
       return <ModelList />
-    } else if(name === "vertices" ){
+    } else if(name === "background" ){
+      return <Background />
+    } 
+    else if(name === "background-color" ){
+      return <Color />
+    }
+    else if(name === "background-image" ){
+      return <Images />
+    }
+     else if(name === "vertices" ){
       return <Ground />
     } else {
       return <span></span>;
@@ -76,7 +90,7 @@ function App(props) {
           } );
         props.loadModel({name,size,object:gltf});
         setModalOpen(!modalOpen);       
-        const newLayers = JSON.parse(JSON.stringify(props.layers));
+        const newLayers = [...props.layers];
         newLayers[0].children.push({ key: `0-${newLayers[0].children.length}`, title: name, checkable:false,selectable:false})
         props.setLayers(newLayers);       
 
@@ -104,7 +118,7 @@ function App(props) {
         } );
         props.loadModel({name,size,object});
         setModalOpen(!modalOpen);       
-        const newLayers = JSON.parse(JSON.stringify(props.layers));
+        const newLayers = [...props.layers];
         newLayers[0].children.push({ key: `0-${newLayers[0].children.length}`, title: name, checkable:false,selectable:false})
         props.setLayers(newLayers);       
 
@@ -122,7 +136,7 @@ function App(props) {
     <div className="App">
       <header className="App-header">
         <Navbar expand="md" className="navbar navbar-dark">
-          <NavbarBrand href="/"><div className="logo-container"><div className="logo"/></div></NavbarBrand>
+          <NavbarBrand href="#"><div className="logo-container"><div className="logo"/></div></NavbarBrand>
           <NavbarToggler onClick={toggleMenu} />
           <Collapse isOpen={menuOpen} navbar>
             <Nav className="mr-auto" navbar>
@@ -151,53 +165,10 @@ function App(props) {
       <SplitPane split="vertical" minSize={50} maxSize={-50} defaultSize={"40%"} onChange={elements.onWindowResize}>
         <LayerPanel />
         <SplitPane split="horizontal" minSize={50} maxSize={-50} defaultSize={"60%"} onChange={elements.onWindowResize}>
-          <SplitPane split="vertical" minSize={50} maxSize={-50} defaultSize={"60%"} onChange={elements.onWindowResize}>
-            <div id = "three-map" >
-              <div id="axes-helper"></div>
-            </div>
-            <div>
-              <h2>Available Models</h2>
-              <div style={{
-                display:"inline-block",
-                width:"150px",
-                height:"150px",
-                "backgroundImage":"url('../assets/soldier.png')",
-                "backgroundRepeat":"no-repeat",
-                "backgroundPosition":"center",
-                "backgroundSize":"100% 100%",
-                marginBottom:"20px",
-                position:"relative"
-              }}>
-                <span style={{position:"absolute",bottom:"-20px"}}>green_leaf_tree.fbx</span>
-                </div>
-                <div style={{
-                display:"inline-block",
-                marginBottom:"20px",
-                marginLeft:"20px",
-                width:"150px",
-                height:"150px",
-                "backgroundImage":"url('../assets/tree1.png')",
-                "backgroundRepeat":"no-repeat",
-                position:"relative",
-                "backgroundPosition":"center",
-                "backgroundSize":"100% 100%"}}>
-                <span style={{position:"absolute",bottom:"-20px"}}>red_leaf_tree.fbx</span>
-                </div>
-                <div style={{
-                display:"inline-block",
-                marginBottom:"20px",
-                width:"150px",
-                height:"150px",
-                "backgroundImage":"url('../assets/tree2.png')",
-                position:"relative",
-                "backgroundRepeat":"no-repeat",
-                "backgroundPosition":"center",
-                "backgroundSize":"100% 100%"}}>
-                <span style={{position:"absolute",bottom:"-20px"}}>Soldier.glb</span>
-                </div>
-            </div>
-          </SplitPane>
-          {props.section!== null && allClasses(props.section)}
+          <div id = "three-map" >
+            <div id="axes-helper"></div>
+          </div>
+          {(props.section!== null && allClasses(props.section)) || <span></span>}
         </SplitPane>
       </SplitPane>
         
@@ -210,14 +181,16 @@ function App(props) {
         <div className="container form">
           <div className="row">
             <div className="col-sm-12">
-              <input className="form-control" type="file" onChange={e => {
-              setFiles([...e.target.files]);
-            }}/>
+              <DropZone onChange={e => {
+                setFiles([...e.target.files]);
+              }} />
             </div>
           </div>
           <div className="row">
             <div className="col-sm-6">
               <button className="btn btn-primary form-control" onClick={()=>{
+
+                if(!files[0]) {return  false;}
                 const extention = files[0].name.split(".")[files[0].name.split(".").length - 1];
                 const vectorExt = ["xlsx","xls","ods","csv","xyz"];
                 if (vectorExt.indexOf(extention) > -1) {
@@ -236,8 +209,8 @@ function App(props) {
                       rows.push(data.split("\n").map(v=>v.split(",").filter(v=>v.length > 0).map(n=>Number(n))));
 
                       const {name,size} = files[0];
-                      const newLayers = JSON.parse(JSON.stringify(props.layers));
-                      newLayers[1].children[2].children.push({ key: `1-2-${newLayers[1].children[2].children.length}`, title: name, checkable:true,selectable:false})
+                      const newLayers = [...props.layers];
+                      newLayers[1].children[2].children.push({ key: `1-2-${newLayers[1].children[2].children.length}`, title: name, checkable:true,selectable:false,icon:<span></span>})
                       props.setLayers(newLayers);
                       if(name.includes("anime")){
                         for(let i=0;i< rows[0].length - 1;i++) {
@@ -264,6 +237,7 @@ function App(props) {
                   loadGLTFModel(files);
                 }
                 // console.log(vectorExt)
+                setFiles([])
               }}>Load</button>
             </div>
             <div className="col-sm-6">
@@ -303,72 +277,3 @@ export default connect(
   mapStateToProps,
   mapDispatchToProps
 )(App);
-
-
-// function instantiateUnits() {
-
-//         var numSuccess = 0;
-
-//         for ( var i = 0; i < UNITS.length; ++ i ) {
-
-//           var u = UNITS[ i ];
-//           var model = getModelByName( u.modelName );
-
-//           if ( model ) {
-
-//             var clonedScene = SkeletonUtils.clone( model.scene );
-
-//             if ( clonedScene ) {
-
-//               // THREE.Scene is cloned properly, let's find one mesh and launch animation for it
-//               var clonedMesh = clonedScene.getObjectByName( u.meshName );
-
-//               if ( clonedMesh ) {
-
-//                 var mixer = startAnimation( clonedMesh, model.animations, u.animationName );
-
-//                 // Save the animation mixer in the list, will need it in the animation loop
-//                 mixers.push( mixer );
-//                 numSuccess ++;
-
-//               }
-
-//               // Different models can have different configurations of armatures and meshes. Therefore,
-//               // We can't set position, scale or rotation to individual mesh objects. Instead we set
-//               // it to the whole cloned scene and then add the whole scene to the game world
-//               // Note: this may have weird effects if you have lights or other items in the GLTF file's scene!
-//               worldScene.add( clonedScene );
-
-//               if ( u.position ) {
-
-//                 clonedScene.position.set( u.position.x, u.position.y, u.position.z );
-
-//               }
-
-//               if ( u.scale ) {
-
-//                 clonedScene.scale.set( u.scale, u.scale, u.scale );
-
-//               }
-
-//               if ( u.rotation ) {
-
-//                 clonedScene.rotation.x = u.rotation.x;
-//                 clonedScene.rotation.y = u.rotation.y;
-//                 clonedScene.rotation.z = u.rotation.z;
-
-//               }
-
-//                   }
-
-//           } else {
-
-//             console.error( "Can not find model", u.modelName );
-
-//           }
-
-//         }
-
-//         console.log( `Successfully instantiated ${numSuccess} units` );
-
-//       }

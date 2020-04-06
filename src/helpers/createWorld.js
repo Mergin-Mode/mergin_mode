@@ -139,7 +139,7 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
         var geometry = new THREE.PlaneBufferGeometry( 100, 100, 99, 99 );
         generateTerrain(geometry)        
 
-        var material = new THREE.MeshPhongMaterial( {color: "#000", side: THREE.DoubleSide} );
+        var material = new THREE.MeshPhongMaterial( {color: "#222", side: THREE.DoubleSide} );
 
         material.flatShading = true
 
@@ -252,7 +252,7 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
 
           pointer.position.copy( intersects[ 0 ].point );
         }
-          console.log(pointer.position)
+          // console.log(pointer.position)
 
       }
       function onWindowResize() {
@@ -263,11 +263,9 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
       }
 
       function animate() {
-        setTimeout( function() {
-
+        // setTimeout( function() {
         requestAnimationFrame( animate );
-
-    }, 1000 / 30 );
+        // }, 1000 / 60 );
         controls.update(); // only required if controls.enableDamping = true, or if controls.autoRotate = true
         controls2.update(); // only required if controls.enableDamping = true, or if controls.autoRotate = true
         render();
@@ -334,7 +332,7 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
       animate();
        
       window.addEventListener( 'resize', onWindowResize, false );
-      window.addEventListener( 'click', onMouseMove, false );
+      document.getElementById("three-map").addEventListener( 'click', onMouseMove, false );
 
       partials = {plane,pointer};
       return {camera,controls,scene,renderer,pointer,partials,loaders,onWindowResize}
