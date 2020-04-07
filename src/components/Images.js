@@ -16,7 +16,12 @@ function Images(props) {
           onClick={src=>{
 
             if(src === "../assets/banned.png") {
-              props.scene.remove(props.sky);
+              props.sky.material = new THREE.MeshBasicMaterial({opacity: 0,
+                transparent: true,
+                alphaTest: 0.05,
+                side: THREE.DoubleSide
+              });
+              props.sky.material.needsUpdate = true;
               return true;
             }
             var loader = new THREE.TextureLoader();
@@ -25,7 +30,7 @@ function Images(props) {
                   function( texture ) {
                     props.sky.material = new THREE.MeshBasicMaterial( { map: texture, side: THREE.BackSide } );
                     props.sky.material.needsUpdate = true;
-                    props.scene.add(props.sky)  
+                    // props.scene.add(props.sky)  
                   },
                   function () {},  // onProgress function
                   function ( error ) { console.log( error ) } // onError function

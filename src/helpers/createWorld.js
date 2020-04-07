@@ -91,7 +91,7 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
         // scene.fog = new THREE.FogExp2( 0xcccccc, 0.002 );
         renderer = new THREE.WebGLRenderer( { antialias: true,alpha:true } );
         renderer.setPixelRatio( window.devicePixelRatio );
-        renderer.setClearColor( 0x000000, 0 )
+        renderer.setClearColor( 0x000000, 0 );
         renderer.setSize( host.clientWidth, host.clientHeight );
 
         const renderer2 = new THREE.WebGLRenderer( { antialias: true,alpha:true } );
@@ -209,10 +209,28 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
         // scene.add( pointer );
 
         var geometry = new THREE.SphereGeometry( 150, 32, 32 );
-        var material = new THREE.MeshBasicMaterial( );
+        var loader = new THREE.TextureLoader();
+        loader.crossOrigin = "";
+        var geometry = new THREE.SphereGeometry( 150, 32, 32 );
+        var material = new THREE.MeshBasicMaterial({opacity: 0,
+          transparent: true,
+          alphaTest: 0.05,
+          side: THREE.DoubleSide
+        });
         const sky = new THREE.Mesh( geometry, material );
         sky.rotation.set(Math.PI/2,0,0)
-        
+
+        // loader.load(src,
+        //       function( texture ) {
+        //         sky.rotation.set(Math.PI/2,0,0)
+        //         sky.material = new THREE.MeshBasicMaterial( { map: texture, side: THREE.BackSide } );
+        //         sky.material.needsUpdate = true;
+        //         // props.scene.add(props.sky)  
+        //       },
+        //       function () {},  // onProgress function
+        //       function ( error ) { console.log( error ) } // onError function
+        //   );
+    
 
         // var geometry = new THREE.SphereGeometry( 1, 32, 32 );
         // var material = new THREE.MeshBasicMaterial( {color: 0xffffff} );

@@ -78,6 +78,9 @@ const initialState = {
 		id:null,
 		mesh:{}
 	},
+	background:{
+		color:"#000"
+	},
 	models:{
 		data:[]
 	},
@@ -155,6 +158,10 @@ const api = (state = initialState, action) => {
 	case "SET_LAYERS":
 		return Object.assign( {},state,{
 			layers: action.layers
+	  	});
+	case "SET_BACKGROUND_COLOR":
+		return Object.assign( {},state,{
+			background: {color:action.color}
 	  	});
 	case "SET_MODEL_LAYER":{
 		const newState = Object.assign( {},state,{

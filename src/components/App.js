@@ -163,7 +163,7 @@ function App(props) {
       </header>
       <main>
       <SplitPane split="vertical" minSize={50} maxSize={-50} defaultSize={"40%"} onChange={elements.onWindowResize}>
-        <LayerPanel />
+        <LayerPanel keys={["background-color","background-image"]} />
         <SplitPane split="horizontal" minSize={50} maxSize={-50} defaultSize={"60%"} onChange={elements.onWindowResize}>
           <div id = "three-map" >
             <div id="axes-helper"></div>

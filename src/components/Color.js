@@ -5,13 +5,14 @@ import { connect } from "react-redux";
 import * as THREE from 'three';
 import { ChromePicker } from 'react-color';
 
-import {loadModel,changeSection,setModelLayer,setLayers} from "../actions";
+import {loadModel,changeSection,setModelLayer,setLayers,setBackgroundColor} from "../actions";
 
 
 function Color(props) {
-  const [color,setColor] = useState("#000");
+  const [color,setColor] = useState(props.backgroundColor);
   const handleComplete = color => {
     setColor(color.hex);
+    props.setBackgroundColor(color.hex);
     props.scene.background = new THREE.Color( color.hex );
   };
 
@@ -34,7 +35,8 @@ const mapStateToProps = state => {
     title:state.api.section.title,
     scene:state.api.scene,
     vectors:state.api.vectors.data,
-    layers:state.api.layers
+    layers:state.api.layers,
+    backgroundColor:state.api.background.color
   };
 };
 
@@ -43,7 +45,8 @@ const mapDispatchToProps = dispatch => {
     loadModel:model =>dispatch(loadModel(model)),
     changeSection:section => dispatch(changeSection(section)),
     setModelLayer: layer => dispatch(setModelLayer(layer)),
-    setLayers: layers => dispatch(setLayers(layers))
+    setLayers: layers => dispatch(setLayers(layers)),
+    setBackgroundColor: color => dispatch(setBackgroundColor(color)),
   };
 };
 

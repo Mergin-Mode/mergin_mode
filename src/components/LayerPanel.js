@@ -8,7 +8,7 @@ import Tree, { TreeNode } from "rc-tree";
 import ColorPicker from "./layout/ColorPicker";
 import { SketchPicker } from 'react-color';
 import { connect } from "react-redux";
-import {changeSection} from "../actions";
+import {changeSection,toggleLayer} from "../actions";
 
 
 
@@ -30,6 +30,11 @@ function LayerPanel (props) {
 
   const onCheck = (checkedKeys, info) => {
     console.log('onCheck', checkedKeys, info);
+
+    toggleLayer({
+      name:info.node.key,
+      ...props
+    },info.checked);
   };
 
   const onEdit = () => {
@@ -90,13 +95,17 @@ function LayerPanel (props) {
 
 const mapStateToProps = state => {
   return {
-    layers:state.api.layers
+    layers:state.api.layers,
+    scene:state.api.scene,
+    sky:state.api.sky.mesh,
+    backgroundColor:state.api.background.color,
   };
 };
 
 const mapDispatchToProps = dispatch => {
   return {
-    changeSection:section => dispatch(changeSection(section))
+    changeSection:section => dispatch(changeSection(section)),
+    toggleLayer
   };
 };
 

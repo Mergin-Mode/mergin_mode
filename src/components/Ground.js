@@ -20,42 +20,35 @@ function ModelList(props) {
 
             index ++; 
             index ++;
-            // if(i==0){
-            // positions[ index ++ ] = 200;
-
-            // }else {
-
             positions[ index ++ ] = (((v[i] ||[])[2]) || 0)*0.005;
-            // }
 
         }
         props.plane.geometry.attributes.position.needsUpdate = true;
-        // var loader = new THREE.TextureLoader();
-        //   loader.crossOrigin = "";
-        //   loader.load('../assets/cropped.png',
-        //       function( texture ) {
-        //         const material = new THREE.MeshBasicMaterial({map: texture});
-        //         props.plane.material = material;
-        //         props.plane.material.needsUpdate = true;
-        //       },
-        //       function () {},  // onProgress function
-        //       function ( error ) { console.log( error ) } // onError function
-        //   );
-        // wireframe
+        var loader = new THREE.TextureLoader();
+          loader.crossOrigin = "";
+          loader.load('../assets/cropped.png',
+              function( texture ) {
+                const material = new THREE.MeshBasicMaterial({map: texture});
+                props.plane.material = material;
+                props.plane.material.needsUpdate = true;
+              },
+              function () {},  // onProgress function
+              function ( error ) { console.log( error ) } // onError function
+          );
         
-        // var material = new THREE.MeshPhongMaterial( {
-        //     color: "#000",
-        //     polygonOffset: true,
-        //     polygonOffsetFactor: 1, // positive value pushes polygon further away
-        //     polygonOffsetUnits: 1
-        // } );
-        // props.plane.material = material;
+        var material = new THREE.MeshPhongMaterial( {
+            color: "#000",
+            polygonOffset: true,
+            polygonOffsetFactor: 1, // positive value pushes polygon further away
+            polygonOffsetUnits: 1
+        } );
+        props.plane.material = material;
         props.plane.material.needsUpdate = true;
 
-        var geo = new THREE.EdgesGeometry( props.plane.geometry ); // or WireframeGeometry
-        var mat = new THREE.LineBasicMaterial( { color: 0x999999, linewidth: 2 } );
-        var wireframe = new THREE.LineSegments( geo, mat );
-        props.plane.add( wireframe );
+        // var geo = new THREE.EdgesGeometry( props.plane.geometry ); // or WireframeGeometry
+        // var mat = new THREE.LineBasicMaterial( { color: 0x999999, linewidth: 2 } );
+        // var wireframe = new THREE.LineSegments( geo, mat );
+        // props.plane.add( wireframe );
         props.setPlane(v)
 
       }}>
