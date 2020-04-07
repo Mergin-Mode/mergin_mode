@@ -9,7 +9,7 @@ export default function Slider (props) {
         props.onClick(src)
     }
         return (
-            <Carousel centerMode centerSlidePercentage={50} emulateTouch>
+            <Carousel centerMode centerSlidePercentage={33} emulateTouch>
                 {
                     props.slides.map(slide=>{
                         return (

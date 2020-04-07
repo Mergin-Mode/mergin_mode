@@ -1,5 +1,6 @@
 .model-item {
 	padding: 20px;
+	margin-bottom: 20px;
 	/*cursor: pointer;*/
 	position: relative;
 	/*border:1px solid #28271d;*/
@@ -53,8 +54,8 @@
 }
 
 .ModelList.container{
-	margin-top:20px;
-	margin-bottom: 80px;
+	padding:20px;
+	/*margin-bottom: 80px;*/
 }
 .model-item input {
 	background: transparent;

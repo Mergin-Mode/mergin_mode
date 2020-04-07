@@ -7,7 +7,8 @@ function MyDropzone(props) {
   }, [])
   const {getRootProps, getInputProps, isDragActive} = useDropzone({onDrop})
   const onChange = (e) => {
-    setFileName(e.target.files[0]?.name || "");
+    console.log(e.target.files)
+    setFileName(Array.prototype.slice.call(e.target.files).map(file=>file.name).join(", ") || "");
     props.onChange(e)
   }
   const [fileName,setFileName] = useState("");

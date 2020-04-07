@@ -208,21 +208,10 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
         pointer = new THREE.Mesh( geometry, material );
         // scene.add( pointer );
 
-        var loader = new THREE.TextureLoader();
-        loader.crossOrigin = "";
-        loader.load('../assets/sky.jpg',
-              function( texture ) {
-                var geometry = new THREE.SphereGeometry( 150, 32, 32 );
-                var material = new THREE.MeshBasicMaterial( { map: texture, side: THREE.BackSide } );
-                var sky = new THREE.Mesh( geometry, material );
-                sky.rotation.set(Math.PI/2,0,0)
-                // scene.add(sky)
-
-              },
-              function () {},  // onProgress function
-              function ( error ) { console.log( error ) } // onError function
-          );
-
+        var geometry = new THREE.SphereGeometry( 150, 32, 32 );
+        var material = new THREE.MeshBasicMaterial( );
+        const sky = new THREE.Mesh( geometry, material );
+        sky.rotation.set(Math.PI/2,0,0)
         
 
         // var geometry = new THREE.SphereGeometry( 1, 32, 32 );
@@ -334,6 +323,6 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
       window.addEventListener( 'resize', onWindowResize, false );
       document.getElementById("three-map").addEventListener( 'click', onMouseMove, false );
 
-      partials = {plane,pointer};
+      partials = {plane,pointer,sky};
       return {camera,controls,scene,renderer,pointer,partials,loaders,onWindowResize}
 } 

@@ -21,7 +21,11 @@ export const setPlane = plane => ({
   plane,
   id:Date.now()
 })
-
+export const setSky = sky => ({
+  type: 'SET_SKY',
+  sky,
+  id:Date.now()
+})
 export const changeSection = section => ({
   type: 'CHANGE_SECTION',
   section

@@ -69,10 +69,14 @@
   object-fit: cover;
 }
 .mm-slider-img{
-  height:150px;
+  height:100px;
 }
 .thumb .mm-slider-img{
-  height:auto;
+  height:45px;
+  object-fit:contain;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .logo{
     background: url("../assets/logo-transparent.png") no-repeat;

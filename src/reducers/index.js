@@ -4,6 +4,7 @@ window.mergin_mode = {
 	modelLayer: [],
 	vectors:[],
 	plane:{},
+	sky:{},
 	mixers:[]
 }
 const initialState = {
@@ -73,6 +74,10 @@ const initialState = {
 		mesh:{},
 		dem:[]
 	},
+	sky:{
+		id:null,
+		mesh:{}
+	},
 	models:{
 		data:[]
 	},
@@ -141,6 +146,12 @@ const api = (state = initialState, action) => {
 	  	});
 	  	window.mergin_mode.plane = newState.plane;
 	  	return newState;
+	case "SET_SKY":{
+		  	const newState = Object.assign({},state,{
+		  		sky:{...state.sky,...action.sky},
+		  	});
+		  	window.mergin_mode.sky = newState.sky;
+		  	return newState;}
 	case "SET_LAYERS":
 		return Object.assign( {},state,{
 			layers: action.layers

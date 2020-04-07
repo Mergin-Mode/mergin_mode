@@ -22,7 +22,7 @@ import createWorld from "../helpers/createWorld";
 import SplitPane from 'react-split-pane';
 import Modal from "react-modal";
 import LayerPanel from "./LayerPanel"
-import {setModelRuntimeInfo,loadVector,loadModel,changeSection,setScene,setLayers,setPlane} from "../actions";
+import {setModelRuntimeInfo,loadVector,loadModel,changeSection,setScene,setLayers,setPlane,setSky} from "../actions";
 import readXlsxFile from 'read-excel-file';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 import * as XLSX from 'xlsx';
@@ -36,7 +36,6 @@ Modal.setAppElement('#root')
 
 function App(props) {
   const allClasses = (name) => {
-    console.log(name)
     if(name === "models" ){
       return <ModelList />
     } else if(name === "background" ){
@@ -48,7 +47,7 @@ function App(props) {
     else if(name === "background-image" ){
       return <Images />
     }
-     else if(name === "vertices" ){
+     else if(name === "ground-vertices" ){
       return <Ground />
     } else {
       return <span></span>;
@@ -130,6 +129,7 @@ function App(props) {
       const newWorld = createWorld(camera,controls,scene,renderer,pointer,partials,loaders,rendererContainer,mixers,props.setModelRuntimeInfo);
       props.setScene(newWorld.scene);
       props.setPlane({id:Date.now(),mesh:newWorld.partials.plane});
+      props.setSky({id:Date.now(),mesh:newWorld.partials.sky});
       setElements({...newWorld});
   },[])
   return (
@@ -191,7 +191,8 @@ function App(props) {
               <button className="btn btn-primary form-control" onClick={()=>{
 
                 if(!files[0]) {return  false;}
-                const extention = files[0].name.split(".")[files[0].name.split(".").length - 1];
+                Array.prototype.slice.call(files).map(file=>{
+                  const extention = file.name.split(".")[file.name.split(".").length - 1];
                 const vectorExt = ["xlsx","xls","ods","csv","xyz"];
                 if (vectorExt.indexOf(extention) > -1) {
                   const reader = new FileReader();
@@ -208,7 +209,7 @@ function App(props) {
                       /* Update state */
                       rows.push(data.split("\n").map(v=>v.split(",").filter(v=>v.length > 0).map(n=>Number(n))));
 
-                      const {name,size} = files[0];
+                      const {name,size} = file;
                       const newLayers = [...props.layers];
                       newLayers[1].children[2].children.push({ key: `1-2-${newLayers[1].children[2].children.length}`, title: name, checkable:true,selectable:false,icon:<span></span>})
                       props.setLayers(newLayers);
@@ -227,16 +228,18 @@ function App(props) {
                         props.loadVector({name,size,array:rows});
                       }
                   };
-                  reader.readAsBinaryString(files[0]);
+                  reader.readAsBinaryString(file);
                   setModalOpen(!modalOpen);       
                   
                  
                 } else if(extention == "fbx") {
-                  loadFBXModel(files);
+                  loadFBXModel([file]);
                 } else if (extention === "glb" || extention === "gltf") {
-                  loadGLTFModel(files);
+                  loadGLTFModel([file]);
                 }
                 // console.log(vectorExt)
+                })
+                
                 setFiles([])
               }}>Load</button>
             </div>
@@ -268,6 +271,7 @@ const mapDispatchToProps = dispatch => {
     changeSection:section => dispatch(changeSection(section)),
     setScene:scene => dispatch(setScene(scene)),
     setPlane:plane => dispatch(setPlane(plane)),
+    setSky:sky => dispatch(setSky(sky)),
     setLayers:layers => dispatch(setLayers(layers)),
     setModelRuntimeInfo:(modelId,info) => dispatch(setModelRuntimeInfo(modelId,info))
   };
