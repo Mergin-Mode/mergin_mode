@@ -30,7 +30,11 @@ export const setSky = sky => ({
 export const setBackgroundColor = color => ({
   type: 'SET_BACKGROUND_COLOR',
   color
-})
+});
+export const setGroundColor = color => ({
+  type: 'SET_GROUND_COLOR',
+  color
+});
 
 export const changeSection = section => ({
   type: 'CHANGE_SECTION',

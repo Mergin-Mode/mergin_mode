@@ -219,6 +219,7 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
         });
         const sky = new THREE.Mesh( geometry, material );
         sky.rotation.set(Math.PI/2,0,0)
+        scene.add(sky)  
 
         // loader.load(src,
         //       function( texture ) {

@@ -11,7 +11,9 @@ function ModelList(props) {
     <div className="ModelList container">
       <h3>{props.title}</h3>
       <select onChange={e=> {
-        const v = props.vectors.filter(vec => vec.id == e.target.value)[0].array[0];
+        let v = props.vectors.filter(vec => vec.id == e.target.value)[0]
+        if(!v) {return false;}
+        v = v.array[0];
         var positions = props.plane.geometry.attributes.position.array;
         var x, y, z, index;
         x = y = z = index = 0;

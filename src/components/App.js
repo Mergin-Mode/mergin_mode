@@ -42,10 +42,16 @@ function App(props) {
       return <Background />
     } 
     else if(name === "background-color" ){
-      return <Color />
+      return <Color type="background"/>
     }
     else if(name === "background-image" ){
-      return <Images />
+      return <Images type="background"/>
+    }
+    else if(name === "ground-color" ){
+      return <Color type="ground"/>
+    }
+    else if(name === "ground-image" ){
+      return <Images type="ground" />
     }
      else if(name === "ground-vertices" ){
       return <Ground />

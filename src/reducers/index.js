@@ -72,7 +72,8 @@ const initialState = {
 	plane:{
 		id:null,
 		mesh:{},
-		dem:[]
+		dem:[],
+		color:"#222"
 	},
 	sky:{
 		id:null,
@@ -162,6 +163,10 @@ const api = (state = initialState, action) => {
 	case "SET_BACKGROUND_COLOR":
 		return Object.assign( {},state,{
 			background: {color:action.color}
+	  	});
+	case "SET_GROUND_COLOR":
+		return Object.assign( {},state,{
+			plane: {...state.plane,color:action.color}
 	  	});
 	case "SET_MODEL_LAYER":{
 		const newState = Object.assign( {},state,{
