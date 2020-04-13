@@ -74,7 +74,6 @@ function ModelList(props) {
                 </div>
                 
                 <button className="mm-btn" onClick={()=>{
-
                   const theVector = props.vectors.filter(v=>{
                     return v.id == vector[d.id]
                   }
@@ -82,14 +81,16 @@ function ModelList(props) {
                   if(!theVector) {
                     return false;
                   }
-                  if (theVector.name.includes("anime")){
+                  if (theVector.name.toLowerCase().includes("anime")){
                     let mesh;
-                    if(d.name.includes("glb") || d.name.includes("gltf")){
+                    if(d.name.toLowerCase().includes("glb") || d.name.toLowerCase().includes("gltf")){
                       mesh = SkeletonUtils.clone( d.mesh.scene );
-                      var mixer = startAnimation( mesh, d.mesh.animations, "Walk" );
+                      var mixer = startAnimation( mesh, d.mesh.animations, "Take 001" );
                       window.mergin_mode.mixers.push(mixer)
                     } else {
                       mesh = d.mesh.clone();
+                      var mixer = startAnimation( mesh.children[0], d.mesh.animations, "Take 001" );
+                      window.mergin_mode.mixers.push(mixer)
 
                     }
                     const rot = JSON.parse(rotation[d.id]);
@@ -124,154 +125,102 @@ function ModelList(props) {
                 } else {
 
                    let mesh;
-                    if(d.name.includes("glb") || d.name.includes("gltf")){
+                    if(d.name.toLowerCase().includes("glb") || d.name.toLowerCase().includes("gltf")){
                     mesh = SkeletonUtils.clone( d.mesh.scene );
 
                     } else {
                       mesh = d.mesh.clone();
                     }
 
-                     var geometry,material;
-                mesh.traverse(function (node){
-                  if (node.isMesh) {
-                    geometry = node.geometry;
-                    material = node.material;
-                
-                    // var geometry = new THREE.SphereBufferGeometry( 0.5 );
-        // var material = new THREE.MeshPhongMaterial( { flatShading: true } );
+                    if(theVector.array[0].length > 2) {
+                      var geometry,material;
+                      mesh.traverse(function (node){
+                        if (node.isMesh) {
+                          geometry = node.geometry;
+                          material = node.material;
+                    
+                          mesh = new THREE.InstancedMesh( geometry, material, theVector.array[0].length,
+                            false, //is it dynamic 
+                            false,  //does it have color 
+                            true,  //uniform scale
+                          );
 
-        mesh = new THREE.InstancedMesh( geometry, material, theVector.array[0].length,
-           false, //is it dynamic 
-                  false,  //does it have color 
-                  true,  //uniform scale
-                 );
+                          var i = 0;
+                          for ( var i = 0; i < theVector.array[0].length; i ++ ) {
+                            var transform = new THREE.Object3D();
+                            const rot = JSON.parse(rotation[d.id]);
+                            rot.x = Number(rot.x);
+                            rot.y = Number(rot.y);
+                            rot.z = Number(rot.z);
+                            const axisX = new THREE.Vector3(1, 0, 0);
+                            const axisY = new THREE.Vector3(0, 1, 0);
+                            const axisZ = new THREE.Vector3(0, 0, 1);
+                            transform.rotateOnWorldAxis(axisX, rot.x);
+                            transform.rotateOnWorldAxis(axisY, rot.y);
+                            transform.rotateOnWorldAxis(axisZ, rot.z);
 
-        var i = 0;
-        // var amount = 10;
-        // var offset = ( amount - 1 ) / 2;
+                            const sca = JSON.parse(scale[d.id]);
+                            sca.x = Number(sca.x);
+                            sca.y = Number(sca.y);
+                            sca.z = Number(sca.z);
 
+                            transform.scale.set(sca.x,sca.y,sca.z);
+                            transform.position.set( ...theVector.array[0][i] );
+                            transform.updateMatrix();
 
-        for ( var i = 0; i < theVector.array[0].length; i ++ ) {
-        var transform = new THREE.Object3D();
-          // const pos = JSON.parse(position[d.id]);
-          // pos.x = Number(pos.x);
-          // pos.y = Number(pos.y);
-          // pos.z = Number(pos.z);
-          const rot = JSON.parse(rotation[d.id]);
-          rot.x = Number(rot.x);
-          rot.y = Number(rot.y);
-          rot.z = Number(rot.z);
-          const axisX = new THREE.Vector3(1, 0, 0);
-          const axisY = new THREE.Vector3(0, 1, 0);
-          const axisZ = new THREE.Vector3(0, 0, 1);
-          transform.rotateOnWorldAxis(axisX, rot.x);
-          transform.rotateOnWorldAxis(axisY, rot.y);
-          transform.rotateOnWorldAxis(axisZ, rot.z);
-          // mesh.rotateOnWorldAxis(axisZ, ( )/63.6619772367581);
+                            mesh.setMatrixAt( i ++, transform.matrix );
 
-          const sca = JSON.parse(scale[d.id]);
-          sca.x = Number(sca.x);
-          sca.y = Number(sca.y);
-          sca.z = Number(sca.z);
-          // mesh.rotation.set(rot.x,rot.y,rot.z);
+                          }
 
-          transform.scale.set(sca.x,sca.y,sca.z);
-          transform.position.set( ...theVector.array[0][i] );
-          transform.updateMatrix();
+                          props.scene.add( mesh )
+                        }
+                      })
+                    } else {
 
-          mesh.setMatrixAt( i ++, transform.matrix );
+                      theVector.array[0].map(r=>{
+                        debugger;
+                       if(r.length == 0) {return false;}
+                        // const pos = JSON.parse(position[d.id]);
+                        // pos.x = Number(pos.x);
+                        // pos.y = Number(pos.y);
+                        // pos.z = Number(pos.z);
+                        const rot = JSON.parse(rotation[d.id]);
+                        rot.x = Number(rot.x);
+                        rot.y = Number(rot.y);
+                        rot.z = Number(rot.z);
+                        const axisX = new THREE.Vector3(1, 0, 0);
+                        const axisY = new THREE.Vector3(0, 1, 0);
+                        const axisZ = new THREE.Vector3(0, 0, 1);
+                        mesh.rotateOnWorldAxis(axisX, rot.x);
+                        mesh.rotateOnWorldAxis(axisY, rot.y);
+                        mesh.rotateOnWorldAxis(axisZ, rot.z);
+                        // mesh.rotateOnWorldAxis(axisZ, ( )/63.6619772367581);
 
-        }
+                        const sca = JSON.parse(scale[d.id]);
+                        sca.x = Number(sca.x);
+                        sca.y = Number(sca.y);
+                        sca.z = Number(sca.z);
+                        mesh.rotation.set(rot.x,rot.y,rot.z);
 
-        props.scene.add( mesh )
-  }
-                });
-                //     debugger;
-                // var geometry,material;
-                // mesh.traverse(function (node){
-                //   if (node.isMesh) {
-                //     geometry = node.geometry;
-                //     material = node.material;
-                //   }
-                // });
+                        mesh.scale.set(sca.x,sca.y,sca.z);
+                     
 
-                // // geometry.computeVertexNormals();
-                // //the instance group 
-                // var cluster = new THREE.InstancedMesh( 
-                //   geometry,
-                //   new THREE.MeshNormalMaterial(), 
-                //   40, //instance count 
-                //   // false, //is it dynamic 
-                //   // false,  //does it have color 
-                //   // true,  //uniform scale
-                // );
+                        if(theVector.name.includes("tree")) {
 
-                // var _v3 = new THREE.Vector3();
-                // var _q = new THREE.Quaternion();
-
-                // for ( var i=0 ; i < theVector.array[0].length ; i ++ ) {
-
-                //   // cluster.setQuaternionAt( i , _q );
-                //   cluster.setPositionAt( i , _v3.set( Math.random() , Math.random(), Math.random() ) );
-                //   // cluster.setScaleAt( i , _v3.set(1,1,1) );
-
-                // }
-                // props.scene.add(cluster);
-
-                  // theVector.array[0].map(r=>{
-                   
-                  //   // const pos = JSON.parse(position[d.id]);
-                  //   // pos.x = Number(pos.x);
-                  //   // pos.y = Number(pos.y);
-                  //   // pos.z = Number(pos.z);
-                  //   const rot = JSON.parse(rotation[d.id]);
-                  //   rot.x = Number(rot.x);
-                  //   rot.y = Number(rot.y);
-                  //   rot.z = Number(rot.z);
-                  //   const axisX = new THREE.Vector3(1, 0, 0);
-                  //   const axisY = new THREE.Vector3(0, 1, 0);
-                  //   const axisZ = new THREE.Vector3(0, 0, 1);
-                  //   mesh.rotateOnWorldAxis(axisX, rot.x);
-                  //   mesh.rotateOnWorldAxis(axisY, rot.y);
-                  //   mesh.rotateOnWorldAxis(axisZ, rot.z);
-                  //   // mesh.rotateOnWorldAxis(axisZ, ( )/63.6619772367581);
-
-                  //   const sca = JSON.parse(scale[d.id]);
-                  //   sca.x = Number(sca.x);
-                  //   sca.y = Number(sca.y);
-                  //   sca.z = Number(sca.z);
-                  //   // mesh.rotation.set(rot.x,rot.y,rot.z);
-
-                  //   mesh.scale.set(sca.x,sca.y,sca.z);
-                  //   // mesh.traverse(function (child) {
-                  //   //       if (child instanceof THREE.Mesh) {
-                  //   //           // apply texture
-                  //   //           // child.material =  new THREE.MeshLambertMaterial({color: 0x00ff00, transparent: true, opacity: 0.5});
-                  //   //           // child.material = new THREE.MeshPhongMaterial({color:"#999",wireframe:true});
-                  //   //           child.material.needsUpdate = true;
-                  //   //           // child.material.alphaTest = 0.5;
-                  //   //           // child.material.transparent = true;
-                  //   //           // child.material.depthWrite = true;
+                          r[2] *=0.5;
+                          
+                          sca.x = (Math.random() * sca.x/2 + sca.x/2)
+                          sca.y = (Math.random() * sca.y/2 + sca.y/2)
+                          sca.z = (Math.random() * sca.z/2 + sca.z/2)
+                        }
+                        mesh.position.set(...r);
+                        mesh.castShadow = true;
+                        mesh.receiveShadow = true;
 
 
-                  //   //       }
-                  //   //   });
-
-                  //   if(theVector.name.includes("tree")) {
-
-                  //     r[2] *=0.5;
-                      
-                  //     sca.x = (Math.random() * sca.x/2 + sca.x/2)
-                  //     sca.y = (Math.random() * sca.y/2 + sca.y/2)
-                  //     sca.z = (Math.random() * sca.z/2 + sca.z/2)
-                  //   }
-                  //   mesh.position.set(...r);
-                  //   mesh.castShadow = true;
-                  //   mesh.receiveShadow = true;
-
-
-                  //   props.scene.add(mesh)
-                  // })
+                        props.scene.add(mesh)
+                      });
+                    }
                 }
                 const newLayers = [...props.layers];
                 newLayers[1].children[3].children.push({ key: `1-3-${newLayers[1].children[3].children.length}`, title: d.name + "_" + theVector.name, checkable:true,selectable:false})

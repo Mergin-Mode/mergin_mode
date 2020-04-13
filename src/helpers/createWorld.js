@@ -169,7 +169,7 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
         //   scene.add( mesh );
         // }
         // lights
-        var light = new THREE.DirectionalLight( 0xffffff );
+        var light = new THREE.DirectionalLight( 0xffffff,4 );
         light.position.set( 1, 1, 100 );
         light.shadow = {
           camera: {
@@ -183,6 +183,8 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
           bias: 0.0001,
           mapSize: { x: 1024 * 6, y: 1024 * 6 }
         };
+        scene.add( light );
+        var light = new THREE.AmbientLight( 0x404040,4 ); // soft white light
         scene.add( light );
         
 

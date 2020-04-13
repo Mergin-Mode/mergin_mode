@@ -108,7 +108,7 @@ function App(props) {
     const loader = new loaders.FBXLoader();
     
     loader.load2(file, object => {
-        // console.log(object.animations)
+        console.log(object.animations)
         // if(object.animations.length > 0) {
         //   elements.mixer = new THREE.AnimationMixer( object );
         //   var action = elements.mixer.clipAction( object.animations[ 0 ] );
@@ -137,6 +137,9 @@ function App(props) {
       props.setPlane({id:Date.now(),mesh:newWorld.partials.plane});
       props.setSky({id:Date.now(),mesh:newWorld.partials.sky});
       setElements({...newWorld});
+  },[])
+  useEffect(()=>{
+      
   },[])
   return (
     <div className="App">
@@ -198,7 +201,7 @@ function App(props) {
 
                 if(!files[0]) {return  false;}
                 Array.prototype.slice.call(files).map(file=>{
-                  const extention = file.name.split(".")[file.name.split(".").length - 1];
+                  const extention = file.name.split(".")[file.name.split(".").length - 1].toLowerCase();
                 const vectorExt = ["xlsx","xls","ods","csv","xyz"];
                 if (vectorExt.indexOf(extention) > -1) {
                   const reader = new FileReader();
