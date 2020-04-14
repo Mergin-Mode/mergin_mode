@@ -139,12 +139,11 @@ function ModelList(props) {
                           geometry = node.geometry;
                           material = node.material;
                     
-                          mesh = new THREE.InstancedMesh( geometry, material, theVector.array[0].length,
+                           mesh = new THREE.InstancedMesh( geometry, material, theVector.array[0].length,
                             false, //is it dynamic 
                             false,  //does it have color 
                             true,  //uniform scale
                           );
-
                           var i = 0;
                           for ( var i = 0; i < theVector.array[0].length; i ++ ) {
                             var transform = new THREE.Object3D();
@@ -163,7 +162,6 @@ function ModelList(props) {
                             sca.x = Number(sca.x);
                             sca.y = Number(sca.y);
                             sca.z = Number(sca.z);
-
                             transform.scale.set(sca.x,sca.y,sca.z);
                             transform.position.set( ...theVector.array[0][i] );
                             transform.updateMatrix();
@@ -178,7 +176,6 @@ function ModelList(props) {
                     } else {
 
                       theVector.array[0].map(r=>{
-                        debugger;
                        if(r.length == 0) {return false;}
                         // const pos = JSON.parse(position[d.id]);
                         // pos.x = Number(pos.x);
@@ -205,19 +202,23 @@ function ModelList(props) {
                         mesh.scale.set(sca.x,sca.y,sca.z);
                      
 
-                        if(theVector.name.includes("tree")) {
-
-                          r[2] *=0.5;
-                          
-                          sca.x = (Math.random() * sca.x/2 + sca.x/2)
-                          sca.y = (Math.random() * sca.y/2 + sca.y/2)
-                          sca.z = (Math.random() * sca.z/2 + sca.z/2)
-                        }
                         mesh.position.set(...r);
                         mesh.castShadow = true;
                         mesh.receiveShadow = true;
-
-
+                        if(theVector.name.includes("loutro")){
+                          mesh.traverse(function (node){
+                          if (node.isMesh) {
+                            if(node.material.map && node.geometry.boundingBox){
+                              node.material.map.wrapS = THREE.RepeatWrapping;
+                              node.material.map.wrapT = THREE.RepeatWrapping;
+                              const p1 = node.geometry.boundingBox.min;
+                              const p2 = node.geometry.boundingBox.max;
+                              const d = parseInt(Math.sqrt(Math.pow(p1.x - p2.x,2) + Math.pow(p1.y - p2.y,2) + Math.pow(p1.z - p2.z,2)));
+                              node.material.map.repeat.set( d,d );
+                            }
+                          }})
+                        }
+                         
                         props.scene.add(mesh)
                       });
                     }

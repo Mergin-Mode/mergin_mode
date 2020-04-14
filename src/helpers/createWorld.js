@@ -107,8 +107,8 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
         camera.position.set( 80, 80, 80 );
         camera.up.set(0,0,1);
 
-        // controls = new TrackballControls( camera, renderer.domElement );
-        controls = new OrbitControls( camera, renderer.domElement );
+        controls = new TrackballControls( camera, renderer.domElement );
+        // controls = new OrbitControls( camera, renderer.domElement );
         //controls.addEventListener( 'change', render ); // call this only in static scenes (i.e., if there is no animation loop)
         controls.enableDamping = true; // an animation loop is required when either damping or auto-rotation are enabled
         controls.dampingFactor = 0.05;
@@ -169,7 +169,7 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
         //   scene.add( mesh );
         // }
         // lights
-        var light = new THREE.DirectionalLight( 0xffffff,4 );
+        var light = new THREE.DirectionalLight( 0xffffff,2 );
         light.position.set( 1, 1, 100 );
         light.shadow = {
           camera: {
@@ -184,7 +184,7 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
           mapSize: { x: 1024 * 6, y: 1024 * 6 }
         };
         scene.add( light );
-        var light = new THREE.AmbientLight( 0x404040,4 ); // soft white light
+        var light = new THREE.AmbientLight( 0x404040,2 ); // soft white light
         scene.add( light );
         
 
@@ -193,9 +193,10 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
 
         var axesHelper = new THREE.AxesHelper( 5 );
         AxesScene.add( axesHelper );
-        var light = new THREE.DirectionalLight( 0x002288 );
-        light.position.set( - 0, - 0, - 100 );
-        scene.add( light );
+        
+        // var light = new THREE.DirectionalLight( 0x002288 );
+        // light.position.set( - 0, - 0, - 100 );
+        // scene.add( light );
 
 
         // var lhelper = new THREE.DirectionalLightHelper( light, 5 );

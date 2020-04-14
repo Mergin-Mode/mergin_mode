@@ -22,7 +22,7 @@ function ModelList(props) {
 
             index ++; 
             index ++;
-            positions[ index ++ ] = (((v[i] ||[])[2]) || 0)*0.005;
+            positions[ index ++ ] = (((v[i] ||[])[2]) || 0) - 50;
 
         }
         props.plane.geometry.attributes.position.needsUpdate = true;
