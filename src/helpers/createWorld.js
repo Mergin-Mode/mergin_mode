@@ -52,7 +52,7 @@ FBXLoader.prototype.load2 = function(files, callback) {
 
 };
 
-export default function	createWorld(camera,controls,scene,renderer,pointer,partials,loaders,rendererContainer, mixer,setModelRuntimeInfo) {
+export default function	createWorld(camera,controls,scene,renderer,pointer,partials,loaders,rendererContainer, mixer,setModelRuntimeInfo,showCoords) {
       loaders.FBXLoader = FBXLoader;
     	loaders.GLTFLoader = GLTFLoader;
     	var clock = new THREE.Clock();
@@ -107,8 +107,8 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
         camera.position.set( 80, 80, 80 );
         camera.up.set(0,0,1);
 
-        controls = new TrackballControls( camera, renderer.domElement );
-        // controls = new OrbitControls( camera, renderer.domElement );
+        // controls = new TrackballControls( camera, renderer.domElement );
+        controls = new OrbitControls( camera, renderer.domElement );
         //controls.addEventListener( 'change', render ); // call this only in static scenes (i.e., if there is no animation loop)
         controls.enableDamping = true; // an animation loop is required when either damping or auto-rotation are enabled
         controls.dampingFactor = 0.05;
@@ -137,6 +137,7 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
 
         // world
         var geometry = new THREE.PlaneBufferGeometry( 100, 100, 99, 99 );
+
         generateTerrain(geometry)        
 
         var material = new THREE.MeshPhongMaterial( {color: "#222", side: THREE.DoubleSide} );
@@ -155,7 +156,10 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
         // scene.add( helper );
 
         scene.add( plane );
-
+        
+        var gridHelper = new THREE.GridHelper( 10000, 1000 );
+        gridHelper.geometry.rotateX( Math.PI / 2 );
+        scene.add( gridHelper );
 
         // var geometry = new THREE.CylinderBufferGeometry( 0, 10, 30, 4, 1 );
         // var material = new THREE.MeshPhongMaterial( { color: 0xffffff, flatShading: true } );
@@ -169,22 +173,22 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
         //   scene.add( mesh );
         // }
         // lights
-        var light = new THREE.DirectionalLight( 0xffffff,2 );
+        var light = new THREE.DirectionalLight( 0xffffff );
         light.position.set( 1, 1, 100 );
-        light.shadow = {
-          camera: {
-            near: 0.5,
-            far: 300,
-            left: -50,
-            bottom: -50,
-            right: 50,
-            top: 50
-          },
-          bias: 0.0001,
-          mapSize: { x: 1024 * 6, y: 1024 * 6 }
-        };
+        // light.shadow = {
+        //   camera: {
+        //     near: 0.5,
+        //     far: 300,
+        //     left: -50,
+        //     bottom: -50,
+        //     right: 50,
+        //     top: 50
+        //   },
+        //   bias: 0.0001,
+        //   mapSize: { x: 1024 * 6, y: 1024 * 6 }
+        // };
         scene.add( light );
-        var light = new THREE.AmbientLight( 0x404040,2 ); // soft white light
+        var light = new THREE.AmbientLight( 0xffffff ); // soft white light
         scene.add( light );
         
 
@@ -202,12 +206,12 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
         // var lhelper = new THREE.DirectionalLightHelper( light, 5 );
         // scene.add( lhelper );        
 
-        var light = new THREE.AmbientLight( 0x666666 );
-        scene.add( light );
+        // var light = new THREE.AmbientLight( 0x666666 );
+        // scene.add( light );
 
 
-        var geometry = new THREE.SphereGeometry( 1, 32, 32 );
-        var material = new THREE.MeshBasicMaterial( {color: 0xff0000} );
+        var geometry = new THREE.SphereGeometry( .5, 32, 32 );
+        var material = new THREE.MeshBasicMaterial( {color: "red"} );
         pointer = new THREE.Mesh( geometry, material );
         // scene.add( pointer );
 
@@ -222,7 +226,7 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
         });
         const sky = new THREE.Mesh( geometry, material );
         sky.rotation.set(Math.PI/2,0,0)
-        scene.add(sky)  
+        scene.add(sky);
 
         // loader.load(src,
         //       function( texture ) {
@@ -262,8 +266,14 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
           pointer.lookAt( intersects[ 0 ].face.normal );
 
           pointer.position.copy( intersects[ 0 ].point );
+          const posX = Math.sqrt(Math.pow(-50 - -50,2) + Math.pow( pointer.position.x - -50,2) ) / 100;
+          const posY = Math.sqrt(Math.pow(-50 - -50,2) + Math.pow( -50 - pointer.position.y,2) ) / 100;
+          const posZ = Math.sqrt(Math.pow(0 - 0,2) + Math.pow( 0 - pointer.position.z,2) );
+          showCoords(posX,posY,posZ);
+          window.array = window.array || "";
+          window.array += `${pointer.position.x.toFixed(4)},${pointer.position.y.toFixed(4)},${pointer.position.z.toFixed(4)}\n`
         }
-          // console.log(pointer.position)
+
 
       }
       function onWindowResize() {
@@ -345,6 +355,6 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
       window.addEventListener( 'resize', onWindowResize, false );
       document.getElementById("three-map").addEventListener( 'click', onMouseMove, false );
 
-      partials = {plane,pointer,sky};
+      partials = {plane,pointer,sky,gridHelper};
       return {camera,controls,scene,renderer,pointer,partials,loaders,onWindowResize}
 } 

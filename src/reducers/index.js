@@ -46,7 +46,8 @@ const initialState = {
 	        children: [
 	          { key: 'ground-color', title: 'Color',icon:<span className="layer-icon"><i className="fas fa-palette"></i></span>},
 	          { key: 'ground-image', title: 'Image' ,icon:<span className="layer-icon"><i className="far fa-file-image"></i></span>},
-	          { key: 'ground-vertices', title: 'Vertices' ,icon:<span className="layer-icon"><i className="fas fa-mountain"></i></span>}
+	          { key: 'ground-vertices', title: 'Vertices' ,icon:<span className="layer-icon"><i className="fas fa-mountain"></i></span>},
+	          { key: 'ground-grid', title: 'Grid' ,icon:<span className="layer-icon"><i className="fab fa-slack-hash"></i></span>}
 	        ],
 	      },
 	      {
@@ -73,7 +74,9 @@ const initialState = {
 		id:null,
 		mesh:{},
 		dem:[],
-		color:"#222"
+		coords:{min:{x:-50,y:-50,z:0},max:{x:50,y:50,z:0}},
+		color:"#222",
+		gridHelper:{}
 	},
 	sky:{
 		id:null,

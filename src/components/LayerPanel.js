@@ -98,6 +98,7 @@ const mapStateToProps = state => {
     layers:state.api.layers,
     scene:state.api.scene,
     sky:state.api.sky.mesh,
+    gridHelper:state.api.plane.gridHelper,
     backgroundColor:state.api.background.color,
   };
 };

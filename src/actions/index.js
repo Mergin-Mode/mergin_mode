@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+
 export const loadModel = model => ({
   type: 'LOAD_MODEL',
   model,
@@ -68,14 +69,29 @@ export const toggleLayer = (data,visible) => {
     data.scene.background = visible ? new THREE.Color(  data.backgroundColor ) : null;
    }
    else if (sublayer === "image") {
-    visible?data.scene.add(data.sky):data.scene.remove(data.sky)
+    data.sky.visible = visible;
    }
    else if (sublayer === "video") {}
   } else if(layer === "ground"){
+    if(sublayer == "grid") {
+      data.gridHelper.visible = visible;
+
+    }
+    // data.plane.visible = visible;
     
   }  else if(layer === "models"){
     
   } else if(layer === "vectors"){
     
+  }
+}
+
+export const showCoords = (x,y,z) => {
+  return (dispatch,getState) => {
+    const coords = getState().api.plane.coords;
+    const diffX = coords.max.x - coords.min.x;
+    const diffY = coords.max.y - coords.min.y;
+    document.getElementById("coords").innerHTML = `${(x*diffX + coords.min.x).toFixed(2)}, ${(y*diffY + coords.min.y).toFixed(2)},${(coords.min.z + z).toFixed(2)}`;
+  
   }
 }

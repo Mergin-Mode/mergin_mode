@@ -2,6 +2,7 @@ import React,{ useState,useEffect } from 'react';
 import './App.css';
 import { connect } from "react-redux";
 import * as THREE from 'three';
+import loadDemo from "../helpers/demo";
 import DropZone from "./layout/DropZone";
 import {ThemeliodesProblima_2} from "../helpers/ThemeliodiProblimata"
 import {
@@ -22,7 +23,7 @@ import createWorld from "../helpers/createWorld";
 import SplitPane from 'react-split-pane';
 import Modal from "react-modal";
 import LayerPanel from "./LayerPanel"
-import {setModelRuntimeInfo,loadVector,loadModel,changeSection,setScene,setLayers,setPlane,setSky} from "../actions";
+import {setModelRuntimeInfo,loadVector,loadModel,changeSection,setScene,setLayers,setPlane,setSky,showCoords} from "../actions";
 import readXlsxFile from 'read-excel-file';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 import * as XLSX from 'xlsx';
@@ -69,14 +70,14 @@ function App(props) {
   const toggleMenu = () => setMenuOpen(!menuOpen);
 
   const  loadGLTFModel = file => {
-    const {name,size} = file[0];
+    const {name,size,url} = file[0];
     const {scene,loaders} = elements;
 
     const loader = new loaders.GLTFLoader();
     var dracoLoader = new DRACOLoader();
     loader.setDRACOLoader( dracoLoader );
-
-    loader.load2(file, gltf => {
+    if(url) {
+      loader.load(url, gltf => {
          // var scene = gltf.scene;
 
           // model.animations = gltf.animations;
@@ -94,21 +95,46 @@ function App(props) {
 
           } );
         props.loadModel({name,size,object:gltf});
-        setModalOpen(!modalOpen);       
+        setModalOpen(false);       
         const newLayers = [...props.layers];
         newLayers[0].children.push({ key: `0-${newLayers[0].children.length}`, title: name, checkable:false,selectable:false})
         props.setLayers(newLayers);       
 
       });
+    } else {
+      loader.load2(file, gltf => {
+         // var scene = gltf.scene;
+
+          // model.animations = gltf.animations;
+          // model.scene = scene;
+
+          // Enable Shadows
+
+          gltf.scene.traverse( function ( object ) {
+
+            if ( object.isMesh ) {
+
+              object.castShadow = true;
+
+            }
+
+          } );
+        props.loadModel({name,size,object:gltf});
+        setModalOpen(false);       
+        const newLayers = [...props.layers];
+        newLayers[0].children.push({ key: `0-${newLayers[0].children.length}`, title: name, checkable:false,selectable:false})
+        props.setLayers(newLayers);       
+
+      });  
+    }
+    
   }   
   const  loadFBXModel = file => {
-    const {name,size} = file[0];
+    const {name,size,url} = file[0];
     const {scene,loaders} = elements;
-
     const loader = new loaders.FBXLoader();
-    
-    loader.load2(file, object => {
-        console.log(object.animations)
+    if (url) {
+      loader.load(url, object => {
         // if(object.animations.length > 0) {
         //   elements.mixer = new THREE.AnimationMixer( object );
         //   var action = elements.mixer.clipAction( object.animations[ 0 ] );
@@ -122,25 +148,182 @@ function App(props) {
           }
         } );
         props.loadModel({name,size,object});
-        setModalOpen(!modalOpen);       
+        setModalOpen(false);       
         const newLayers = [...props.layers];
         newLayers[0].children.push({ key: `0-${newLayers[0].children.length}`, title: name, checkable:false,selectable:false})
         props.setLayers(newLayers);       
 
       });
+    } else {
+      loader.load2(file, object => {
+        // if(object.animations.length > 0) {
+        //   elements.mixer = new THREE.AnimationMixer( object );
+        //   var action = elements.mixer.clipAction( object.animations[ 0 ] );
+        //   action.play();  
+        // }
+        
+        object.traverse( child => {
+          if ( child.isMesh ) {
+            child.castShadow = true;
+            child.receiveShadow = true;
+          }
+        } );
+        props.loadModel({name,size,object});
+        setModalOpen(false);       
+        const newLayers = [...props.layers];
+        newLayers[0].children.push({ key: `0-${newLayers[0].children.length}`, title: name, checkable:false,selectable:false})
+        props.setLayers(newLayers);       
+
+      });  
+    }
+    
   }
   useEffect(()=>{
       let {mixers,camera,controls,scene,renderer,pointer,partials,loaders} = elements;
       const rendererContainer = document.getElementById("three-map");
-      const newWorld = createWorld(camera,controls,scene,renderer,pointer,partials,loaders,rendererContainer,mixers,props.setModelRuntimeInfo);
+      const newWorld = createWorld(camera,controls,scene,renderer,pointer,partials,loaders,rendererContainer,mixers,props.setModelRuntimeInfo,props.showCoords);
       props.setScene(newWorld.scene);
-      props.setPlane({id:Date.now(),mesh:newWorld.partials.plane});
+      props.setPlane({id:Date.now(),mesh:newWorld.partials.plane,gridHelper:newWorld.partials.gridHelper});
       props.setSky({id:Date.now(),mesh:newWorld.partials.sky});
       setElements({...newWorld});
-  },[])
-  useEffect(()=>{
-      
-  },[])
+  },[]);
+
+  const load = (f = []) => {
+    const theFiles = f.length > 0 ? f : Array.prototype.slice.call(files); 
+
+    if(theFiles.length == 0) {return  false;}
+
+    if(f.length > 0) {
+      theFiles.map(file=>{
+        const extention = file.name.split(".")[file.name.split(".").length - 1].toLowerCase();
+        const vectorExt = ["xlsx","xls","ods","csv","xyz"];
+        if (vectorExt.indexOf(extention) > -1) {
+          fetch(file.url)
+            .then(res => res.text())
+            .then(
+              (result) => {
+                const rows = [result.split("\n").map(v=>v.split(","))];
+                  const {name,size} = file;
+                  const newLayers = [...props.layers];
+                  newLayers[1].children[2].children.push({ key: `1-2-${newLayers[1].children[2].children.length}`, title: name, checkable:true,selectable:false,icon:<span></span>})
+                  props.setLayers(newLayers);
+                  if(name.includes("anime")){
+                    for(let i=0;i< rows[0].length - 1;i++) {
+                      const Xa = rows[0][i][0]; 
+                      const Ya = rows[0][i][1];
+                      const Xb = (rows[0][i + 1] || [])[0] || 0; 
+                      const Yb = (rows[0][i + 1] || [])[1] || 0; 
+                      const {Gab,Sab} = ThemeliodesProblima_2(Xa,Ya,Xb,Yb)
+                      rows[0][i][3] = Number(Gab);
+                      rows[0][i][4] = Number(Sab);
+                    }
+                    props.loadVector({name,size,array:rows});
+                  } else {
+                    props.loadVector({name,size,array:rows});
+                  }
+              },
+              // Note: it's important to handle errors here
+              // instead of a catch() block so that we don't swallow
+              // exceptions from actual bugs in components.
+              (error) => {
+                console.log(error)
+              }
+            )
+          // const reader = new FileReader();
+          // const rows= [];
+          // reader.onload = (evt) => { // evt = on_file_select event
+          //   /* Parse data */
+          //   const bstr = evt.target.result;
+          //   const wb = XLSX.read(bstr, {type:'binary'});
+          //   /* Get first worksheet */
+          //   const wsname = wb.SheetNames[0];
+          //   const ws = wb.Sheets[wsname];
+          //   /* Convert array of arrays */
+          //   const data = XLSX.utils.sheet_to_csv(ws, {header:1});
+          //   /* Update state */
+          //   rows.push(data.split("\n").map(v=>v.split(",").filter(v=>v.length > 0).map(n=>Number(n))));
+
+          //   const {name,size} = file;
+          //   const newLayers = [...props.layers];
+          //   newLayers[1].children[2].children.push({ key: `1-2-${newLayers[1].children[2].children.length}`, title: name, checkable:true,selectable:false,icon:<span></span>})
+          //   props.setLayers(newLayers);
+          //   if(name.includes("anime")){
+          //     for(let i=0;i< rows[0].length - 1;i++) {
+          //       const Xa = rows[0][i][0]; 
+          //       const Ya = rows[0][i][1];
+          //       const Xb = (rows[0][i + 1] || [])[0] || 0; 
+          //       const Yb = (rows[0][i + 1] || [])[1] || 0; 
+          //       const {Gab,Sab} = ThemeliodesProblima_2(Xa,Ya,Xb,Yb)
+          //       rows[0][i][3] = Number(Gab);
+          //       rows[0][i][4] = Number(Sab);
+          //     }
+          //     props.loadVector({name,size,array:rows});
+          //   } else {
+          //     props.loadVector({name,size,array:rows});
+          //   }
+          // };
+          // reader.readAsBinaryString(file);
+          // setModalOpen(!modalOpen);       
+          
+         
+        } else if(extention == "fbx") {
+          loadFBXModel([file]);
+        } else if (extention === "glb" || extention === "gltf") {
+          loadGLTFModel([file]);
+        }
+      })
+    } else{
+      theFiles.map(file=>{
+        const extention = file.name.split(".")[file.name.split(".").length - 1].toLowerCase();
+        const vectorExt = ["xlsx","xls","ods","csv","xyz"];
+        if (vectorExt.indexOf(extention) > -1) {
+          const reader = new FileReader();
+          const rows= [];
+          reader.onload = (evt) => { // evt = on_file_select event
+            /* Parse data */
+            const bstr = evt.target.result;
+            const wb = XLSX.read(bstr, {type:'binary'});
+            /* Get first worksheet */
+            const wsname = wb.SheetNames[0];
+            const ws = wb.Sheets[wsname];
+            /* Convert array of arrays */
+            const data = XLSX.utils.sheet_to_csv(ws, {header:1});
+            /* Update state */
+            rows.push(data.split("\n").map(v=>v.split(",").filter(v=>v.length > 0).map(n=>Number(n))));
+
+            const {name,size} = file;
+            const newLayers = [...props.layers];
+            newLayers[1].children[2].children.push({ key: `1-2-${newLayers[1].children[2].children.length}`, title: name, checkable:true,selectable:false,icon:<span></span>})
+            props.setLayers(newLayers);
+            if(name.includes("anime")){
+              for(let i=0;i< rows[0].length - 1;i++) {
+                const Xa = rows[0][i][0]; 
+                const Ya = rows[0][i][1];
+                const Xb = (rows[0][i + 1] || [])[0] || 0; 
+                const Yb = (rows[0][i + 1] || [])[1] || 0; 
+                const {Gab,Sab} = ThemeliodesProblima_2(Xa,Ya,Xb,Yb)
+                rows[0][i][3] = Number(Gab);
+                rows[0][i][4] = Number(Sab);
+              }
+              props.loadVector({name,size,array:rows});
+            } else {
+              props.loadVector({name,size,array:rows});
+            }
+          };
+          reader.readAsBinaryString(file);
+          setModalOpen(false);       
+          
+         
+        } else if(extention == "fbx") {
+          loadFBXModel([file]);
+        } else if (extention === "glb" || extention === "gltf") {
+          loadGLTFModel([file]);
+        }
+      })
+      setFiles([])
+    }
+  }
+                
   return (
     <div className="App">
       <header className="App-header">
@@ -160,6 +343,9 @@ function App(props) {
                   <DropdownItem divider />
                 </DropdownMenu>
               </UncontrolledDropdown>
+              <NavItem>
+                <NavLink onClick={()=>loadDemo(props,load)}>Load Demo</NavLink>
+            </NavItem>
             </Nav>
             <NavbarText>
                 <NavLink href="https://github.com/prieston/mergin_mode" target="_blank">
@@ -172,10 +358,14 @@ function App(props) {
       </header>
       <main>
       <SplitPane split="vertical" minSize={50} maxSize={-50} defaultSize={"40%"} onChange={elements.onWindowResize}>
-        <LayerPanel keys={["background-color","background-image"]} />
+        <LayerPanel keys={["background-color","background-image","ground-grid","ground-color"]} />
         <SplitPane split="horizontal" minSize={50} maxSize={-50} defaultSize={"60%"} onChange={elements.onWindowResize}>
           <div id = "three-map" >
             <div id="axes-helper"></div>
+            <div id="info-helper">
+              <div id="epsg">EPSG: 32634</div>
+              <div id="coords"></div>
+            </div>
           </div>
           {(props.section!== null && allClasses(props.section)) || <span></span>}
         </SplitPane>
@@ -197,60 +387,7 @@ function App(props) {
           </div>
           <div className="row">
             <div className="col-sm-6">
-              <button className="btn btn-primary form-control" onClick={()=>{
-
-                if(!files[0]) {return  false;}
-                Array.prototype.slice.call(files).map(file=>{
-                  const extention = file.name.split(".")[file.name.split(".").length - 1].toLowerCase();
-                const vectorExt = ["xlsx","xls","ods","csv","xyz"];
-                if (vectorExt.indexOf(extention) > -1) {
-                  const reader = new FileReader();
-                  const rows= [];
-                  reader.onload = (evt) => { // evt = on_file_select event
-                      /* Parse data */
-                      const bstr = evt.target.result;
-                      const wb = XLSX.read(bstr, {type:'binary'});
-                      /* Get first worksheet */
-                      const wsname = wb.SheetNames[0];
-                      const ws = wb.Sheets[wsname];
-                      /* Convert array of arrays */
-                      const data = XLSX.utils.sheet_to_csv(ws, {header:1});
-                      /* Update state */
-                      rows.push(data.split("\n").map(v=>v.split(",").filter(v=>v.length > 0).map(n=>Number(n))));
-
-                      const {name,size} = file;
-                      const newLayers = [...props.layers];
-                      newLayers[1].children[2].children.push({ key: `1-2-${newLayers[1].children[2].children.length}`, title: name, checkable:true,selectable:false,icon:<span></span>})
-                      props.setLayers(newLayers);
-                      if(name.includes("anime")){
-                        for(let i=0;i< rows[0].length - 1;i++) {
-                          const Xa = rows[0][i][0]; 
-                          const Ya = rows[0][i][1];
-                          const Xb = (rows[0][i + 1] || [])[0] || 0; 
-                          const Yb = (rows[0][i + 1] || [])[1] || 0; 
-                          const {Gab,Sab} = ThemeliodesProblima_2(Xa,Ya,Xb,Yb)
-                          rows[0][i][3] = Number(Gab);
-                          rows[0][i][4] = Number(Sab);
-                        }
-                        props.loadVector({name,size,array:rows});
-                      } else {
-                        props.loadVector({name,size,array:rows});
-                      }
-                  };
-                  reader.readAsBinaryString(file);
-                  setModalOpen(!modalOpen);       
-                  
-                 
-                } else if(extention == "fbx") {
-                  loadFBXModel([file]);
-                } else if (extention === "glb" || extention === "gltf") {
-                  loadGLTFModel([file]);
-                }
-                // console.log(vectorExt)
-                })
-                
-                setFiles([])
-              }}>Load</button>
+              <button className="btn btn-primary form-control" onClick={load}>Load</button>
             </div>
             <div className="col-sm-6">
               <button className="btn btn-secondary form-control" onClick={toggleModal}>Close</button>
@@ -259,6 +396,7 @@ function App(props) {
         </div>
       </Modal>
     </div>
+    
   );
 }
 
@@ -269,11 +407,13 @@ const mapStateToProps = state => {
     title:state.api.section.title,
     layers:state.api.layers,
     vectors: state.api.vectors,
-    modelLayer:state.api.modelLayer
+    modelLayer:state.api.modelLayer,
+    coords:state.api.plane.coords,
+    state:state.api
   };
 };
 
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps = (dispatch) => {
   return {
     loadModel:model =>dispatch(loadModel(model)),
     loadVector:vector =>dispatch(loadVector(vector)),
@@ -282,6 +422,7 @@ const mapDispatchToProps = dispatch => {
     setPlane:plane => dispatch(setPlane(plane)),
     setSky:sky => dispatch(setSky(sky)),
     setLayers:layers => dispatch(setLayers(layers)),
+    showCoords:(x,y,z) => dispatch(showCoords(x,y,z)),
     setModelRuntimeInfo:(modelId,info) => dispatch(setModelRuntimeInfo(modelId,info))
   };
 };

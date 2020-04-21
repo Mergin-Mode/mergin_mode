@@ -3,7 +3,8 @@ import './ModelList.css';
 import { connect } from "react-redux";
 import * as THREE from 'three';
 import { SkeletonUtils } from 'three/examples/jsm/utils/SkeletonUtils.js';
-
+import InstancedGroupMesh from "three-instanced-group-mesh";
+// import { SimplifyModifier } from 'three/examples/jsm/modifiers/SimplifyModifier.js';
 import {
   Collapse,
   Navbar,
@@ -133,50 +134,105 @@ function ModelList(props) {
                     }
 
                     if(theVector.array[0].length > 2) {
-                      var geometry,material;
-                      mesh.traverse(function (node){
-                        if (node.isMesh) {
-                          geometry = node.geometry;
-                          material = node.material;
-                    
-                           mesh = new THREE.InstancedMesh( geometry, material, theVector.array[0].length,
-                            false, //is it dynamic 
-                            false,  //does it have color 
-                            true,  //uniform scale
-                          );
-                          var i = 0;
-                          for ( var i = 0; i < theVector.array[0].length; i ++ ) {
-                            var transform = new THREE.Object3D();
-                            const rot = JSON.parse(rotation[d.id]);
-                            rot.x = Number(rot.x);
-                            rot.y = Number(rot.y);
-                            rot.z = Number(rot.z);
-                            const axisX = new THREE.Vector3(1, 0, 0);
-                            const axisY = new THREE.Vector3(0, 1, 0);
-                            const axisZ = new THREE.Vector3(0, 0, 1);
-                            transform.rotateOnWorldAxis(axisX, rot.x);
-                            transform.rotateOnWorldAxis(axisY, rot.y);
-                            transform.rotateOnWorldAxis(axisZ, rot.z);
+                      
+                            let new_mesh = new InstancedGroupMesh( mesh, theVector.array[0].length);
+                            console.log(theVector.array[0].length)
+                            for ( var i = 0; i < theVector.array[0].length - 1; i ++ ) {
+                              var transform = new THREE.Object3D();
+                              transform.frustumCulled = false;
+                              const rot = JSON.parse(rotation[d.id]);
+                              rot.x = Number(rot.x);
+                              rot.y = Number(rot.y);
+                              rot.z = Number(rot.z);
+                              const axisX = new THREE.Vector3(1, 0, 0);
+                              const axisY = new THREE.Vector3(0, 1, 0);
+                              const axisZ = new THREE.Vector3(0, 0, 1);
+                              transform.rotateOnWorldAxis(axisX, rot.x);
+                              transform.rotateOnWorldAxis(axisY, rot.y);
+                              transform.rotateOnWorldAxis(axisZ, rot.z);
 
-                            const sca = JSON.parse(scale[d.id]);
-                            sca.x = Number(sca.x);
-                            sca.y = Number(sca.y);
-                            sca.z = Number(sca.z);
-                            transform.scale.set(sca.x,sca.y,sca.z);
-                            transform.position.set( ...theVector.array[0][i] );
-                            transform.updateMatrix();
+                              const randomXY = Math.random() * 0.1;
+                              const randomZ = Math.random() * 0.1 + 0.05;
+                              const sca = JSON.parse(scale[d.id]);
+                              sca.x = Number(sca.x) + randomXY;
+                              sca.y = Number(sca.y) + randomXY;
+                              sca.z = Number(sca.z) + randomZ;
+                              transform.scale.set(sca.x,sca.y,sca.z);
+                              transform.position.set( ...theVector.array[0][i] );
+                              transform.updateMatrix();
 
-                            mesh.setMatrixAt( i ++, transform.matrix );
+                              new_mesh.setMatrixAt( i, transform.matrix );
 
                           }
 
-                          props.scene.add( mesh )
-                        }
-                      })
+                          props.scene.add( new_mesh )
+
+                      // var geometry,material;
+                      // mesh.traverse(function (node){
+                      //   if (node.isMesh) {
+                      //     geometry = node.geometry;
+                      //     material = node.material;
+                    
+                      //      mesh = new THREE.InstancedMesh( geometry, material, theVector.array[0].length,
+                      //       false, //is it dynamic 
+                      //       false,  //does it have color 
+                      //       true,  //uniform scale
+                      //     );
+                           
+                      //      mesh.frustumCulled = false;
+                      //     var i = 0;
+                      //     for ( var i = 0; i < theVector.array[0].length; i ++ ) {
+                      //       var transform = new THREE.Object3D();
+                      //       const rot = JSON.parse(rotation[d.id]);
+                      //       rot.x = Number(rot.x);
+                      //       rot.y = Number(rot.y);
+                      //       rot.z = Number(rot.z);
+                      //       const axisX = new THREE.Vector3(1, 0, 0);
+                      //       const axisY = new THREE.Vector3(0, 1, 0);
+                      //       const axisZ = new THREE.Vector3(0, 0, 1);
+                      //       transform.rotateOnWorldAxis(axisX, rot.x);
+                      //       transform.rotateOnWorldAxis(axisY, rot.y);
+                      //       transform.rotateOnWorldAxis(axisZ, rot.z);
+
+                      //       const sca = JSON.parse(scale[d.id]);
+                      //       sca.x = Number(sca.x);
+                      //       sca.y = Number(sca.y);
+                      //       sca.z = Number(sca.z);
+                      //       transform.scale.set(sca.x,sca.y,sca.z);
+                      //       transform.position.set( ...theVector.array[0][i] );
+                      //       transform.updateMatrix();
+
+                      //       mesh.setMatrixAt( i ++, transform.matrix );
+
+                      //     }
+
+                      //     props.scene.add( mesh )
+                      //   }
+                      // })
                     } else {
 
                       theVector.array[0].map(r=>{
                        if(r.length == 0) {return false;}
+                       if(theVector.name.includes("new")) {
+                          mesh.traverse(function (node){
+                          if (node.isMesh) {
+                            node.material.transparent = true;
+                            node.material.opacity = 0.5;
+                            node.material.needsUpdate = true;
+                          }})
+                       } else {
+                         // var modifier = new SimplifyModifier();
+                          mesh.traverse(function (node){
+                          if (node.isMesh) {
+                            node.material.transparent = true;
+                            node.material.opacity = 0.5;
+                            // node.material.flatShading = true;
+                            node.material.needsUpdate = true;
+                            // var count = Math.floor( node.geometry.attributes.position.count * 0.875 ); // number of vertices to remove
+                            // node.geometry = modifier.modify( node.geometry, count );
+                          }})
+                       }
+                        
                         // const pos = JSON.parse(position[d.id]);
                         // pos.x = Number(pos.x);
                         // pos.y = Number(pos.y);
@@ -200,25 +256,26 @@ function ModelList(props) {
                         mesh.rotation.set(rot.x,rot.y,rot.z);
 
                         mesh.scale.set(sca.x,sca.y,sca.z);
-                     
+                      
 
                         mesh.position.set(...r);
                         mesh.castShadow = true;
                         mesh.receiveShadow = true;
-                        if(theVector.name.includes("loutro")){
-                          mesh.traverse(function (node){
-                          if (node.isMesh) {
-                            if(node.material.map && node.geometry.boundingBox){
-                              node.material.map.wrapS = THREE.RepeatWrapping;
-                              node.material.map.wrapT = THREE.RepeatWrapping;
-                              const p1 = node.geometry.boundingBox.min;
-                              const p2 = node.geometry.boundingBox.max;
-                              const d = parseInt(Math.sqrt(Math.pow(p1.x - p2.x,2) + Math.pow(p1.y - p2.y,2) + Math.pow(p1.z - p2.z,2)));
-                              node.material.map.repeat.set( d,d );
-                            }
-                          }})
-                        }
-                         
+                        // if(theVector.name.includes("loutro")){
+                        //   mesh.traverse(function (node){
+                        //   if (node.isMesh) {
+                        //     if(node.material.map && node.geometry.boundingBox){
+                        //       node.material.map.wrapS = THREE.RepeatWrapping;
+                        //       node.material.map.wrapT = THREE.RepeatWrapping;
+                        //       const p1 = node.geometry.boundingBox.min;
+                        //       const p2 = node.geometry.boundingBox.max;
+                        //       const d = parseInt(Math.sqrt(Math.pow(p1.x - p2.x,2) + Math.pow(p1.y - p2.y,2) + Math.pow(p1.z - p2.z,2)));
+                        //       node.material.map.repeat.set( d,d );
+                        //     }
+                        //   }})
+                        // }
+                         window.meshes = window.meshes || []
+                         window.meshes.push (mesh)
                         props.scene.add(mesh)
                       });
                     }

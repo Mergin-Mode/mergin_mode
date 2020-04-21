@@ -27,6 +27,7 @@
     "redux-thunk": "^2.3.0",
     "three": "^0.112.1",
     "three-buffer-geometry-utils": "^1.0.0",
+    "three-instanced-group-mesh": "^1.0.1",
     "xlsx": "^0.15.6"
   },
   "scripts": {

@@ -174,8 +174,12 @@
   height: 100%;
   position: relative;
   overflow: hidden;
+  cursor:grab;
   /*background:url("../assets/camera1.jpg") no-repeat;*/
   background-size:100% 100%;
+}
+#three-map:active{
+  cursor: grabbing;
 }
 #axes-helper{
   width:60px;
@@ -183,7 +187,37 @@
   max-width:100px;
   max-height: 100px;
   position: absolute;
-  bottom: 0px;
+  bottom: 20px;
   left: 0px;
   /*border: 1px solid black;*/
+}
+
+#info-helper{
+  position: absolute;
+  cursor: pointer;
+  color:whitesmoke;
+  width:100%;
+  height: 20px;
+  position: absolute;
+  bottom: 0px;
+  left: 0px;
+  background-color:#161618;
+  border: 1px solid #222;
+  padding: 0px 10px;
+}
+
+#coords {
+  text-align: right;
+  position: relative;
+  width: 50%;
+  display: inline-block;
+  font-size: 10px;
+}
+
+#epsg {
+  text-align: left;
+  display: inline-block;
+  width: 50%;
+  position: relative;
+  font-size: 10px;
 }
