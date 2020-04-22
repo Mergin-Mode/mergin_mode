@@ -2,7 +2,7 @@ import React,{ useState,useEffect } from 'react';
 import './App.css';
 import { connect } from "react-redux";
 import * as THREE from 'three';
-import loadDemo from "../helpers/demo";
+// import {loadModels, addModels} from "../helpers/demo";
 import DropZone from "./layout/DropZone";
 import {ThemeliodesProblima_2} from "../helpers/ThemeliodiProblimata"
 import {
@@ -23,7 +23,7 @@ import createWorld from "../helpers/createWorld";
 import SplitPane from 'react-split-pane';
 import Modal from "react-modal";
 import LayerPanel from "./LayerPanel"
-import {setModelRuntimeInfo,loadVector,loadModel,changeSection,setScene,setLayers,setPlane,setSky,showCoords} from "../actions";
+import {setModelRuntimeInfo,loadVector,loadModel,changeSection,setScene,setLayers,setPlane,setSky,showCoords,addModel,loadDemo,loadGround} from "../actions";
 import readXlsxFile from 'read-excel-file';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 import * as XLSX from 'xlsx';
@@ -69,7 +69,7 @@ function App(props) {
   const toggleModal = ()=>setModalOpen(!modalOpen);
   const toggleMenu = () => setMenuOpen(!menuOpen);
 
-  const  loadGLTFModel = file => {
+  const  loadGLTFModel = (file,resolve) => {
     const {name,size,url} = file[0];
     const {scene,loaders} = elements;
 
@@ -99,6 +99,7 @@ function App(props) {
         const newLayers = [...props.layers];
         newLayers[0].children.push({ key: `0-${newLayers[0].children.length}`, title: name, checkable:false,selectable:false})
         props.setLayers(newLayers);       
+        resolve(true);
 
       });
     } else {
@@ -129,7 +130,7 @@ function App(props) {
     }
     
   }   
-  const  loadFBXModel = file => {
+  const  loadFBXModel = (file,resolve) => {
     const {name,size,url} = file[0];
     const {scene,loaders} = elements;
     const loader = new loaders.FBXLoader();
@@ -152,6 +153,7 @@ function App(props) {
         const newLayers = [...props.layers];
         newLayers[0].children.push({ key: `0-${newLayers[0].children.length}`, title: name, checkable:false,selectable:false})
         props.setLayers(newLayers);       
+        resolve(true);
 
       });
     } else {
@@ -176,7 +178,6 @@ function App(props) {
 
       });  
     }
-    
   }
   useEffect(()=>{
       let {mixers,camera,controls,scene,renderer,pointer,partials,loaders} = elements;
@@ -189,139 +190,105 @@ function App(props) {
   },[]);
 
   const load = (f = []) => {
-    const theFiles = f.length > 0 ? f : Array.prototype.slice.call(files); 
+      const pa = [];
+      const theFiles = f.length > 0 ? f : Array.prototype.slice.call(files); 
+      if(theFiles.length == 0) {return  false;}
 
-    if(theFiles.length == 0) {return  false;}
+      if(f.length > 0) {
+        theFiles.map(file=>{
+          pa.push(new Promise( (resolve,reject) => {
+            const extention = file.name.split(".")[file.name.split(".").length - 1].toLowerCase();
+            const vectorExt = ["xlsx","xls","ods","csv","xyz"];
 
-    if(f.length > 0) {
-      theFiles.map(file=>{
-        const extention = file.name.split(".")[file.name.split(".").length - 1].toLowerCase();
-        const vectorExt = ["xlsx","xls","ods","csv","xyz"];
-        if (vectorExt.indexOf(extention) > -1) {
-          fetch(file.url)
-            .then(res => res.text())
-            .then(
-              (result) => {
-                const rows = [result.split("\n").map(v=>v.split(","))];
-                  const {name,size} = file;
-                  const newLayers = [...props.layers];
-                  newLayers[1].children[2].children.push({ key: `1-2-${newLayers[1].children[2].children.length}`, title: name, checkable:true,selectable:false,icon:<span></span>})
-                  props.setLayers(newLayers);
-                  if(name.includes("anime")){
-                    for(let i=0;i< rows[0].length - 1;i++) {
-                      const Xa = rows[0][i][0]; 
-                      const Ya = rows[0][i][1];
-                      const Xb = (rows[0][i + 1] || [])[0] || 0; 
-                      const Yb = (rows[0][i + 1] || [])[1] || 0; 
-                      const {Gab,Sab} = ThemeliodesProblima_2(Xa,Ya,Xb,Yb)
-                      rows[0][i][3] = Number(Gab);
-                      rows[0][i][4] = Number(Sab);
+            if (vectorExt.indexOf(extention) > -1) {
+              fetch(file.url)
+                .then(res => res.text())
+                .then( (result) => {
+                  const rows = [result.split("\n").map(v=>v.split(","))];
+                  rows[0][rows[0].length - 1] = [];
+                    const {name,size} = file;
+                    const newLayers = [...props.layers];
+                    newLayers[1].children[2].children.push({ key: `1-2-${newLayers[1].children[2].children.length}`, title: name, checkable:true,selectable:false,icon:<span></span>})
+                    props.setLayers(newLayers);
+                    if(name.includes("anime")){
+                      for(let i=0;i< rows[0].length - 1;i++) {
+                        const Xa = rows[0][i][0]; 
+                        const Ya = rows[0][i][1];
+                        const Xb = (rows[0][i + 1] || [])[0] || 0; 
+                        const Yb = (rows[0][i + 1] || [])[1] || 0; 
+                        const {Gab,Sab} = ThemeliodesProblima_2(Xa,Ya,Xb,Yb)
+                        rows[0][i][3] = Number(Gab);
+                        rows[0][i][4] = Number(Sab);
+                      }
+                      props.loadVector({name,size,array:rows});
+                    } else {
+                      props.loadVector({name,size,array:rows});
                     }
-                    props.loadVector({name,size,array:rows});
-                  } else {
-                    props.loadVector({name,size,array:rows});
-                  }
-              },
-              // Note: it's important to handle errors here
-              // instead of a catch() block so that we don't swallow
-              // exceptions from actual bugs in components.
-              (error) => {
-                console.log(error)
-              }
-            )
-          // const reader = new FileReader();
-          // const rows= [];
-          // reader.onload = (evt) => { // evt = on_file_select event
-          //   /* Parse data */
-          //   const bstr = evt.target.result;
-          //   const wb = XLSX.read(bstr, {type:'binary'});
-          //   /* Get first worksheet */
-          //   const wsname = wb.SheetNames[0];
-          //   const ws = wb.Sheets[wsname];
-          //   /* Convert array of arrays */
-          //   const data = XLSX.utils.sheet_to_csv(ws, {header:1});
-          //   /* Update state */
-          //   rows.push(data.split("\n").map(v=>v.split(",").filter(v=>v.length > 0).map(n=>Number(n))));
-
-          //   const {name,size} = file;
-          //   const newLayers = [...props.layers];
-          //   newLayers[1].children[2].children.push({ key: `1-2-${newLayers[1].children[2].children.length}`, title: name, checkable:true,selectable:false,icon:<span></span>})
-          //   props.setLayers(newLayers);
-          //   if(name.includes("anime")){
-          //     for(let i=0;i< rows[0].length - 1;i++) {
-          //       const Xa = rows[0][i][0]; 
-          //       const Ya = rows[0][i][1];
-          //       const Xb = (rows[0][i + 1] || [])[0] || 0; 
-          //       const Yb = (rows[0][i + 1] || [])[1] || 0; 
-          //       const {Gab,Sab} = ThemeliodesProblima_2(Xa,Ya,Xb,Yb)
-          //       rows[0][i][3] = Number(Gab);
-          //       rows[0][i][4] = Number(Sab);
-          //     }
-          //     props.loadVector({name,size,array:rows});
-          //   } else {
-          //     props.loadVector({name,size,array:rows});
-          //   }
-          // };
-          // reader.readAsBinaryString(file);
-          // setModalOpen(!modalOpen);       
-          
-         
-        } else if(extention == "fbx") {
-          loadFBXModel([file]);
-        } else if (extention === "glb" || extention === "gltf") {
-          loadGLTFModel([file]);
-        }
-      })
-    } else{
-      theFiles.map(file=>{
-        const extention = file.name.split(".")[file.name.split(".").length - 1].toLowerCase();
-        const vectorExt = ["xlsx","xls","ods","csv","xyz"];
-        if (vectorExt.indexOf(extention) > -1) {
-          const reader = new FileReader();
-          const rows= [];
-          reader.onload = (evt) => { // evt = on_file_select event
-            /* Parse data */
-            const bstr = evt.target.result;
-            const wb = XLSX.read(bstr, {type:'binary'});
-            /* Get first worksheet */
-            const wsname = wb.SheetNames[0];
-            const ws = wb.Sheets[wsname];
-            /* Convert array of arrays */
-            const data = XLSX.utils.sheet_to_csv(ws, {header:1});
-            /* Update state */
-            rows.push(data.split("\n").map(v=>v.split(",").filter(v=>v.length > 0).map(n=>Number(n))));
-
-            const {name,size} = file;
-            const newLayers = [...props.layers];
-            newLayers[1].children[2].children.push({ key: `1-2-${newLayers[1].children[2].children.length}`, title: name, checkable:true,selectable:false,icon:<span></span>})
-            props.setLayers(newLayers);
-            if(name.includes("anime")){
-              for(let i=0;i< rows[0].length - 1;i++) {
-                const Xa = rows[0][i][0]; 
-                const Ya = rows[0][i][1];
-                const Xb = (rows[0][i + 1] || [])[0] || 0; 
-                const Yb = (rows[0][i + 1] || [])[1] || 0; 
-                const {Gab,Sab} = ThemeliodesProblima_2(Xa,Ya,Xb,Yb)
-                rows[0][i][3] = Number(Gab);
-                rows[0][i][4] = Number(Sab);
-              }
-              props.loadVector({name,size,array:rows});
-            } else {
-              props.loadVector({name,size,array:rows});
+                    resolve(true);
+                  })
+                .catch(e=> {
+                  resolve(true)
+                  console.log(e)
+                })
+            } else if(extention == "fbx") {
+              loadFBXModel([file],resolve);
+            } else if (extention === "glb" || extention === "gltf") {
+              loadGLTFModel([file],resolve);
             }
-          };
-          reader.readAsBinaryString(file);
-          setModalOpen(false);       
-          
-         
-        } else if(extention == "fbx") {
-          loadFBXModel([file]);
-        } else if (extention === "glb" || extention === "gltf") {
-          loadGLTFModel([file]);
-        }
-      })
-      setFiles([])
-    }
+          }))
+        })
+        return Promise.all(pa)
+
+      } else {
+        theFiles.map(file=>{
+          const extention = file.name.split(".")[file.name.split(".").length - 1].toLowerCase();
+          const vectorExt = ["xlsx","xls","ods","csv","xyz"];
+          if (vectorExt.indexOf(extention) > -1) {
+            const reader = new FileReader();
+            const rows= [];
+            reader.onload = (evt) => { // evt = on_file_select event
+              /* Parse data */
+              const bstr = evt.target.result;
+              const wb = XLSX.read(bstr, {type:'binary'});
+              /* Get first worksheet */
+              const wsname = wb.SheetNames[0];
+              const ws = wb.Sheets[wsname];
+              /* Convert array of arrays */
+              const data = XLSX.utils.sheet_to_csv(ws, {header:1});
+              /* Update state */
+              rows.push(data.split("\n").map(v=>v.split(",").filter(v=>v.length > 0).map(n=>Number(n))));
+
+              const {name,size} = file;
+              const newLayers = [...props.layers];
+              newLayers[1].children[2].children.push({ key: `1-2-${newLayers[1].children[2].children.length}`, title: name, checkable:true,selectable:false,icon:<span></span>})
+              props.setLayers(newLayers);
+              if(name.includes("anime")){
+                for(let i=0;i< rows[0].length - 1;i++) {
+                  const Xa = rows[0][i][0]; 
+                  const Ya = rows[0][i][1];
+                  const Xb = (rows[0][i + 1] || [])[0] || 0; 
+                  const Yb = (rows[0][i + 1] || [])[1] || 0; 
+                  const {Gab,Sab} = ThemeliodesProblima_2(Xa,Ya,Xb,Yb)
+                  rows[0][i][3] = Number(Gab);
+                  rows[0][i][4] = Number(Sab);
+                }
+                props.loadVector({name,size,array:rows});
+              } else {
+                props.loadVector({name,size,array:rows});
+              }
+            };
+            reader.readAsBinaryString(file);
+            setModalOpen(false);       
+            
+           
+          } else if(extention == "fbx") {
+            loadFBXModel([file]);
+          } else if (extention === "glb" || extention === "gltf") {
+            loadGLTFModel([file]);
+          }
+        })
+        setFiles([])
+      }
   }
                 
   return (
@@ -344,7 +311,7 @@ function App(props) {
                 </DropdownMenu>
               </UncontrolledDropdown>
               <NavItem>
-                <NavLink onClick={()=>loadDemo(props,load)}>Load Demo</NavLink>
+                <NavLink onClick={()=>props.loadDemo(props,load)}>Load Demo</NavLink>
             </NavItem>
             </Nav>
             <NavbarText>
@@ -423,6 +390,9 @@ const mapDispatchToProps = (dispatch) => {
     setSky:sky => dispatch(setSky(sky)),
     setLayers:layers => dispatch(setLayers(layers)),
     showCoords:(x,y,z) => dispatch(showCoords(x,y,z)),
+    addModel: (options,props) => addModel(options,props),
+    loadDemo: (props,load) => dispatch(loadDemo(props,load)),
+    loadGround: (vecId,props) => dispatch(loadGround(vecId,props)),
     setModelRuntimeInfo:(modelId,info) => dispatch(setModelRuntimeInfo(modelId,info))
   };
 };

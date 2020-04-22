@@ -353,7 +353,7 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
       animate();
        
       window.addEventListener( 'resize', onWindowResize, false );
-      document.getElementById("three-map").addEventListener( 'click', onMouseMove, false );
+      document.getElementById("three-map").addEventListener( 'mousemove', onMouseMove, false );
 
       partials = {plane,pointer,sky,gridHelper};
       return {camera,controls,scene,renderer,pointer,partials,loaders,onWindowResize}
