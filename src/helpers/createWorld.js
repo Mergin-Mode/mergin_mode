@@ -349,7 +349,7 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
                   const axisZ = new THREE.Vector3(0, 0, 1);
                   // mesh.rotateOnWorldAxis(axisX, rot.x);
                   // mesh.rotateOnWorldAxis(axisY, rot.y);
-                  model.mesh.rotateOnWorldAxis(axisZ, - (200 - activeRowData[3] + newActiveRow[3])/63.6619772367581);
+                  model.mesh.rotateOnWorldAxis(axisZ, - (400 - activeRowData[3] + newActiveRow[3])/63.6619772367581);
               }
             }
             console.log(model.mesh.position)
