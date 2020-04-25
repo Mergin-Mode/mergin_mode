@@ -8,16 +8,16 @@ import Tree, { TreeNode } from "rc-tree";
 import ColorPicker from "./layout/ColorPicker";
 import { SketchPicker } from 'react-color';
 import { connect } from "react-redux";
-import {changeSection,toggleLayer} from "../actions";
+import {changeSection,toggleLayer,setLayers} from "../actions";
 
 
 
 function LayerPanel (props) {
-  const { keys } = props;
-  const defaultExpandedKeys= keys;
+  const defaultExpandedKeys = props.keys;
   const defaultSelectedKeys = [];
-  const defaultCheckedKeys = keys
+  const defaultCheckedKeys = props.keys
 
+  const [keys, setKeys] = useState(props.keys);
   const onExpand = expandedKeys => {
     console.log('onExpand', expandedKeys);
   };
@@ -29,8 +29,13 @@ function LayerPanel (props) {
   };
 
   const onCheck = (checkedKeys, info) => {
-    console.log('onCheck', checkedKeys, info);
-
+    // console.log(keys,'onCheck', checkedKeys, info);
+    // keys = checkedKeys.checked;
+    // console.log(keys)
+    // console.log(keys.includes(info.node.key),keys,info.node.key,keys.indexOf(info.node.key))
+    const newLayers = {...layers};
+    layers.checked.includes(info.node.key) ? layers.checked.splice(layers.checked.indexOf(info.node.key),1) : layers.checked.push(info.node.key)
+    props.setLayers(newLayers);
     toggleLayer({
       name:info.node.key,
       ...props
@@ -53,7 +58,13 @@ function LayerPanel (props) {
 
   useEffect(()=>{
     setLayers(props.layers);
-  },[props.layers])
+    console.log(layers.tree,layers.checked)
+  },[props.layers]);
+
+  useEffect(()=>{
+    setKeys(props.keys)
+  },[props.keys])
+
   const customLabel = (
       <span className="cus-label">
         <span>operations: </span>
@@ -82,12 +93,10 @@ function LayerPanel (props) {
           checkStrictly={true}
           selectable={true}
           defaultExpandAll={true}
-          onExpand={onExpand}
-          defaultSelectedKeys={defaultSelectedKeys}
-          defaultCheckedKeys={defaultCheckedKeys}
+          checkedKeys={layers.checked}
           onSelect={onSelect}
           onCheck={onCheck}
-          treeData={layers}
+          treeData={layers.tree}
         />
       </div>
     );
@@ -95,8 +104,10 @@ function LayerPanel (props) {
 
 const mapStateToProps = state => {
   return {
+    keys:state.api.keys,
     layers:state.api.layers,
     scene:state.api.scene,
+    plane:state.api.plane.mesh,
     sky:state.api.sky.mesh,
     gridHelper:state.api.plane.gridHelper,
     backgroundColor:state.api.background.color,
@@ -106,6 +117,7 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => {
   return {
     changeSection:section => dispatch(changeSection(section)),
+    setLayers:layers => dispatch(setLayers(layers)),
     toggleLayer
   };
 };

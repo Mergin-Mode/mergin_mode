@@ -21,7 +21,7 @@ import createWorld from "../helpers/createWorld";
 import SplitPane from 'react-split-pane';
 import Modal from "react-modal";
 import LayerPanel from "./LayerPanel"
-import {loadModel,changeSection,setModelLayer,setLayers,addModel} from "../actions";
+import {loadModel,changeSection,setModelLayer,setLayers,setKeys,addModel} from "../actions";
 
 
 function ModelList(props) {
@@ -107,6 +107,7 @@ const mapStateToProps = state => {
     scene:state.api.scene,
     vectors:state.api.vectors.data,
     layers:state.api.layers,
+    keys:state.api.keys,
   };
 };
 
@@ -116,6 +117,7 @@ const mapDispatchToProps = dispatch => {
     changeSection:section => dispatch(changeSection(section)),
     setModelLayer: layer => dispatch(setModelLayer(layer)),
     setLayers: layers => dispatch(setLayers(layers)),
+    setKeys: keys => dispatch(setKeys(keys)),
     addModel: (options,props) => addModel(options,props)
   };
 };

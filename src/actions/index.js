@@ -20,6 +20,11 @@ export const setScene = scene => ({
   id:Date.now()
 })
 
+export const setKeys = keys => ({
+  type: 'SET_KEYS',
+  keys,
+})
+
 export const setPlane = plane => ({
   type: 'SET_PLANE',
   plane,
@@ -78,11 +83,16 @@ export const toggleLayer = (data,visible) => {
     if(sublayer == "grid") {
       data.gridHelper.visible = visible;
 
+    } else if(sublayer == "color") {
+      console.log(data)
+      data.plane.visible = visible;
+
     }
     // data.plane.visible = visible;
     
   }  else if(layer === "models"){
-    
+    const object = data.scene.getObjectById( Number(sublayer), true );
+    object.visible = visible;    
   } else if(layer === "vectors"){
     
   }
@@ -94,7 +104,9 @@ export const showCoords = (x,y,z) => {
     // console.log(coords)
     const diffX = coords.max.x - coords.min.x;
     const diffY = coords.max.y - coords.min.y;
+    console.log(diffX, diffY)
     document.getElementById("coords").innerHTML = `${(x*diffX + coords.min.x).toFixed(2)}, ${(y*diffY + coords.min.y).toFixed(2)},${(coords.min.z + z).toFixed(2)}`;
+    // window.data.push(`${(x*100 - 50).toFixed(2)},${(y*100 - 50).toFixed(2)},${(0 + z).toFixed(2)}`);
   
   }
 }
@@ -108,15 +120,17 @@ export const addModel = (options, props)=> {
     if(!theVector) {
       return false;
     }
+
+    const group = new THREE.Group();
     if (theVector.name.toLowerCase().includes("anime")){
       let mesh;
       if(d.name.toLowerCase().includes("glb") || d.name.toLowerCase().includes("gltf")){
         mesh = SkeletonUtils.clone( d.mesh.scene );
-        var mixer = startAnimation( mesh, d.mesh.animations, "Take 001" );
+        var mixer = startAnimation( mesh, d.mesh.animations, "Walk" );
         window.mergin_mode.mixers.push(mixer)
       } else {
         mesh = d.mesh.clone();
-        var mixer = startAnimation( mesh.children[0], d.mesh.animations, "Take 001" );
+        var mixer = startAnimation( mesh.children[0], d.mesh.animations, "Walk" );
         window.mergin_mode.mixers.push(mixer)
 
       }
@@ -142,12 +156,12 @@ export const addModel = (options, props)=> {
       mesh.position.set(...theVector.array[0][0]);
       mesh.castShadow = true;
       mesh.receiveShadow = true;
-      props.scene.add(mesh);
+      group.add(mesh);
       props.setModelLayer({
         id:Date.now(),
         vectorId:theVector.id,
         runtimeInfo:{animating:true,activeRow:0},
-        mesh
+        mesh:group
       });
   } else {
 
@@ -191,7 +205,7 @@ export const addModel = (options, props)=> {
 
             }
 
-            props.scene.add( new_mesh )
+            group.add( new_mesh )
       } else {
 
         theVector.array[0].map(r=>{
@@ -200,7 +214,7 @@ export const addModel = (options, props)=> {
             mesh.traverse(function (node){
             if (node.isMesh) {
               node.material.transparent = true;
-              node.material.opacity = 0.7;
+              node.material.opacity = 1;
               node.material.needsUpdate = true;
             }})
          } else {
@@ -208,7 +222,7 @@ export const addModel = (options, props)=> {
             mesh.traverse(function (node){
             if (node.isMesh) {
               node.material.transparent = true;
-              node.material.opacity = 0.9;
+              node.material.opacity = 1;
               node.material.needsUpdate = true;
             }})
          }
@@ -255,14 +269,15 @@ export const addModel = (options, props)=> {
           // }
           window.meshes = window.meshes || []
           window.meshes.push (mesh);
-          props.scene.add(mesh)
+          group.add(mesh)
         });
       }
   }
-  const newLayers = [...props.layers];
-  newLayers[1].children[3].children.push({ key: `1-3-${newLayers[1].children[3].children.length}`, title: d.name + "_" + theVector.name, checkable:true,selectable:false})
+  const newLayers = {...props.layers};
+  newLayers.checked.push(`models-${group.id}`)
+  newLayers.tree[1].children[3].children.push({ key: `models-${group.id}`, title: d.name + "_" + theVector.name})
+  props.scene.add(group);
   props.setLayers(newLayers);
-  
 
   function startAnimation( skinnedMesh, animations, animationName ) {
 
@@ -284,15 +299,20 @@ export const addModel = (options, props)=> {
 export const loadDemo =  function(props,load){
   return (dispatch, getState) => {
     const urls = [
-      {name:"loutro-old.glb",size:"0",url:"demo/loutro-old.glb"},
-      {name:"tree-green.fbx",size:"0",url:"demo/tree-green.fbx"},
-      {name:"tree-red.fbx",size:"0",url:"demo/tree-red.fbx"},
-      {name:"loutro-new.gltf",size:"0",url:"demo/loutro-new.gltf"},
+      {name:"loutro-old.glb",size:"0",url:process.env.PUBLIC_URL + "/demo/loutro-old.glb"},
+      {name:"tree-green.fbx",size:"0",url:process.env.PUBLIC_URL + "/demo/tree-green.fbx"},
+      {name:"tree-red.fbx",size:"0",url:process.env.PUBLIC_URL + "/demo/tree-red.fbx"},
+      {name:"loutro-new.gltf",size:"0",url:process.env.PUBLIC_URL + "/demo/loutro-new.gltf"},
+      {name:"man-walking.gltf",size:"0",url:process.env.PUBLIC_URL + "/demo/man-walking.gltf"},
       {name:"loutro-old.csv",size:"0",url:process.env.PUBLIC_URL + "/demo/loutro-old.csv"},
       {name:"loutro-new.csv",size:"0",url:process.env.PUBLIC_URL + "/demo/loutro-new.csv"},
       {name:"trees-green.csv",size:"0",url:process.env.PUBLIC_URL + "/demo/trees-green.csv"},
       {name:"trees-red.csv",size:"0",url:process.env.PUBLIC_URL + "/demo/trees-red.csv"},
       {name:"dtm.csv",size:"0",url:process.env.PUBLIC_URL + "/demo/dtm.csv"},
+      {name:"anime-path-1.csv",size:"0",url:process.env.PUBLIC_URL + "/demo/anime-path-1.csv"},
+      {name:"anime-path-2.csv",size:"0",url:process.env.PUBLIC_URL + "/demo/anime-path-2.csv"},
+      {name:"anime-path-3.csv",size:"0",url:process.env.PUBLIC_URL + "/demo/anime-path-3.csv"},
+      {name:"anime-path-4.csv",size:"0",url:process.env.PUBLIC_URL + "/demo/anime-path-4.csv"},
     ]
 
     load(urls).then(()=>{
@@ -387,6 +407,77 @@ export const loadDemo =  function(props,load){
         scene:newState.api.scene
       })
 
+      //load man walking
+      d = newState.api.models.data.filter(m=>m.name === "man-walking.gltf")[0];
+      vector = {[d.id]:newState.api.vectors.data.filter(m=>m.name === "anime-path-1.csv")[0].id};
+      rotation = {[d.id]:JSON.stringify({x:1.57,y:0,z:0})}
+      scale = {[d.id]:JSON.stringify({x:1,y:1,z:1})}
+      
+      props.addModel({d, scale,rotation,vector},{
+        ...props,
+        section:newState.api.section.active,
+        title:newState.api.section.title,
+        layers:newState.api.layers,
+        vectors: newState.api.vectors.data,
+        modelLayer:newState.api.modelLayer,
+        coords:newState.api.plane.coords,
+        state:newState.api,
+        scene:newState.api.scene
+      })
+
+      //load man walking
+      d = newState.api.models.data.filter(m=>m.name === "man-walking.gltf")[0];
+      vector = {[d.id]:newState.api.vectors.data.filter(m=>m.name === "anime-path-2.csv")[0].id};
+      rotation = {[d.id]:JSON.stringify({x:1.57,y:0,z:0})}
+      scale = {[d.id]:JSON.stringify({x:1,y:1,z:1})}
+      
+      props.addModel({d, scale,rotation,vector},{
+        ...props,
+        section:newState.api.section.active,
+        title:newState.api.section.title,
+        layers:newState.api.layers,
+        vectors: newState.api.vectors.data,
+        modelLayer:newState.api.modelLayer,
+        coords:newState.api.plane.coords,
+        state:newState.api,
+        scene:newState.api.scene
+      });
+
+      //load man walking
+      d = newState.api.models.data.filter(m=>m.name === "man-walking.gltf")[0];
+      vector = {[d.id]:newState.api.vectors.data.filter(m=>m.name === "anime-path-3.csv")[0].id};
+      rotation = {[d.id]:JSON.stringify({x:1.57,y:0,z:0})}
+      scale = {[d.id]:JSON.stringify({x:1,y:1,z:1})}
+      
+      props.addModel({d, scale,rotation,vector},{
+        ...props,
+        section:newState.api.section.active,
+        title:newState.api.section.title,
+        layers:newState.api.layers,
+        vectors: newState.api.vectors.data,
+        modelLayer:newState.api.modelLayer,
+        coords:newState.api.plane.coords,
+        state:newState.api,
+        scene:newState.api.scene
+      });
+
+      //load man walking
+      d = newState.api.models.data.filter(m=>m.name === "man-walking.gltf")[0];
+      vector = {[d.id]:newState.api.vectors.data.filter(m=>m.name === "anime-path-4.csv")[0].id};
+      rotation = {[d.id]:JSON.stringify({x:1.57,y:0,z:0})}
+      scale = {[d.id]:JSON.stringify({x:1,y:1,z:1})}
+      
+      props.addModel({d, scale,rotation,vector},{
+        ...props,
+        section:newState.api.section.active,
+        title:newState.api.section.title,
+        layers:newState.api.layers,
+        vectors: newState.api.vectors.data,
+        modelLayer:newState.api.modelLayer,
+        coords:newState.api.plane.coords,
+        state:newState.api,
+        scene:newState.api.scene
+      })
     });
   }
 }

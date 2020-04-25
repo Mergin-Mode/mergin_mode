@@ -174,7 +174,10 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
         // }
         // lights
         var light = new THREE.DirectionalLight( 0xffffff );
-        light.position.set( 1, 1, 100 );
+        light.position.set( 1, 1, 50 );
+        
+        var light = new THREE.HemisphereLight( 0xffffbb, 0x080820, 1 );
+        scene.add( light );
         // light.shadow = {
         //   camera: {
         //     near: 0.5,
@@ -187,13 +190,18 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
         //   bias: 0.0001,
         //   mapSize: { x: 1024 * 6, y: 1024 * 6 }
         // };
-        scene.add( light );
-        var light = new THREE.AmbientLight( 0xffffff ); // soft white light
-        scene.add( light );
-        
-
+       
         // var lhelper = new THREE.DirectionalLightHelper( light, 5 );
         // scene.add( lhelper );
+
+        var light = new THREE.AmbientLight( 0xffffff ); // soft white light
+        scene.add( light );
+
+
+        var light = new THREE.AmbientLight( 0x404040,2 ); // soft white light
+        scene.add( light );
+
+        
 
         var axesHelper = new THREE.AxesHelper( 5 );
         AxesScene.add( axesHelper );
@@ -300,7 +308,8 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
           window.mergin_mode.mixers[ i ].update( delta );
 
         }
-        window.mergin_mode.modelLayer.map(model => {
+        window.mergin_mode.modelLayer.map(md => {
+          const model = {...md,mesh:md.mesh.children[0]};
           const {x,y,z} = model.mesh.position;
           const {animating,activeRow} = model.runtimeInfo;
           const activeRowData = window.mergin_mode.vectors.data.filter(v=>v.id == model.vectorId)[0].array[0][activeRow];
@@ -322,7 +331,7 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
               newSab = 0
             }
             if(newSab < Sab){
-              model.mesh.position.set(newX,newY,newZ)  
+              model.mesh.position.set(newX,newY,newZ);
             } else {
               const newActiveRow = window.mergin_mode.vectors.data.filter(v=>v.id == model.vectorId)[0].array[0][activeRow + 1];
               if(!newActiveRow) {
@@ -340,9 +349,10 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
                   const axisZ = new THREE.Vector3(0, 0, 1);
                   // mesh.rotateOnWorldAxis(axisX, rot.x);
                   // mesh.rotateOnWorldAxis(axisY, rot.y);
-                  model.mesh.rotateOnWorldAxis(axisZ, -(400 - activeRowData[3] + newActiveRow[3])/63.6619772367581);
+                  model.mesh.rotateOnWorldAxis(axisZ, - (200 - activeRowData[3] + newActiveRow[3])/63.6619772367581);
               }
             }
+            console.log(model.mesh.position)
             
           }
         })

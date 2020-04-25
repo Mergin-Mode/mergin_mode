@@ -23,7 +23,7 @@ import createWorld from "../helpers/createWorld";
 import SplitPane from 'react-split-pane';
 import Modal from "react-modal";
 import LayerPanel from "./LayerPanel"
-import {setModelRuntimeInfo,loadVector,loadModel,changeSection,setScene,setLayers,setPlane,setSky,showCoords,addModel,loadDemo,loadGround} from "../actions";
+import {setModelLayer,setModelRuntimeInfo,loadVector,loadModel,changeSection,setKeys,setScene,setLayers,setPlane,setSky,showCoords,addModel,loadDemo,loadGround} from "../actions";
 import readXlsxFile from 'read-excel-file';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 import * as XLSX from 'xlsx';
@@ -96,8 +96,8 @@ function App(props) {
           } );
         props.loadModel({name,size,object:gltf});
         setModalOpen(false);       
-        const newLayers = [...props.layers];
-        newLayers[0].children.push({ key: `0-${newLayers[0].children.length}`, title: name, checkable:false,selectable:false})
+        const newLayers = {...props.layers};
+        newLayers.tree[0].children.push({ key: `0-${newLayers.tree[0].children.length}`, title: name, checkable:false,selectable:false})
         props.setLayers(newLayers);       
         resolve(true);
 
@@ -122,8 +122,8 @@ function App(props) {
           } );
         props.loadModel({name,size,object:gltf});
         setModalOpen(false);       
-        const newLayers = [...props.layers];
-        newLayers[0].children.push({ key: `0-${newLayers[0].children.length}`, title: name, checkable:false,selectable:false})
+        const newLayers = {...props.layers};
+        newLayers.tree[0].children.push({ key: `0-${newLayers.tree[0].children.length}`, title: name, checkable:false,selectable:false})
         props.setLayers(newLayers);       
 
       });  
@@ -150,8 +150,8 @@ function App(props) {
         } );
         props.loadModel({name,size,object});
         setModalOpen(false);       
-        const newLayers = [...props.layers];
-        newLayers[0].children.push({ key: `0-${newLayers[0].children.length}`, title: name, checkable:false,selectable:false})
+        const newLayers = {...props.layers};
+        newLayers.tree[0].children.push({ key: `0-${newLayers.tree[0].children.length}`, title: name, checkable:false,selectable:false})
         props.setLayers(newLayers);       
         resolve(true);
 
@@ -172,8 +172,8 @@ function App(props) {
         } );
         props.loadModel({name,size,object});
         setModalOpen(false);       
-        const newLayers = [...props.layers];
-        newLayers[0].children.push({ key: `0-${newLayers[0].children.length}`, title: name, checkable:false,selectable:false})
+        const newLayers = {...props.layers};
+        newLayers.tree[0].children.push({ key: `0-${newLayers.tree[0].children.length}`, title: name, checkable:false,selectable:false})
         props.setLayers(newLayers);       
 
       });  
@@ -204,11 +204,12 @@ function App(props) {
               fetch(file.url)
                 .then(res => res.text())
                 .then( (result) => {
-                  const rows = [result.split("\n").map(v=>v.split(","))];
+                  const rows = [result.split("\n").map(v=>v.split(",").map(a=>Number(a)))];
                   rows[0][rows[0].length - 1] = [];
                     const {name,size} = file;
-                    const newLayers = [...props.layers];
-                    newLayers[1].children[2].children.push({ key: `1-2-${newLayers[1].children[2].children.length}`, title: name, checkable:true,selectable:false,icon:<span></span>})
+                    const newLayers = {...props.layers};
+                    newLayers.tree[1].children[2].children.push({ key: `1-2-${newLayers.tree[1].children[2].children.length}`, title: name,icon:<span></span>})
+                    newLayers.checked.push(`1-2-${newLayers.tree[1].children[2].children.length}`);
                     props.setLayers(newLayers);
                     if(name.includes("anime")){
                       for(let i=0;i< rows[0].length - 1;i++) {
@@ -259,8 +260,8 @@ function App(props) {
               rows.push(data.split("\n").map(v=>v.split(",").filter(v=>v.length > 0).map(n=>Number(n))));
 
               const {name,size} = file;
-              const newLayers = [...props.layers];
-              newLayers[1].children[2].children.push({ key: `1-2-${newLayers[1].children[2].children.length}`, title: name, checkable:true,selectable:false,icon:<span></span>})
+              const newLayers = {...props.layers};
+              newLayers.tree[1].children[2].children.push({ key: `1-2-${newLayers.tree[1].children[2].children.length}`, title: name, checkable:true,selectable:false,icon:<span></span>})
               props.setLayers(newLayers);
               if(name.includes("anime")){
                 for(let i=0;i< rows[0].length - 1;i++) {
@@ -325,7 +326,7 @@ function App(props) {
       </header>
       <main>
       <SplitPane split="vertical" minSize={50} maxSize={-50} defaultSize={"40%"} onChange={elements.onWindowResize}>
-        <LayerPanel keys={["background-color","background-image","ground-grid","ground-color"]} />
+        <LayerPanel />
         <SplitPane split="horizontal" minSize={50} maxSize={-50} defaultSize={"60%"} onChange={elements.onWindowResize}>
           <div id = "three-map" >
             <div id="axes-helper"></div>
@@ -389,10 +390,12 @@ const mapDispatchToProps = (dispatch) => {
     setPlane:plane => dispatch(setPlane(plane)),
     setSky:sky => dispatch(setSky(sky)),
     setLayers:layers => dispatch(setLayers(layers)),
+    setKeys:keys => dispatch(setKeys(keys)),
     showCoords:(x,y,z) => dispatch(showCoords(x,y,z)),
     addModel: (options,props) => addModel(options,props),
     loadDemo: (props,load) => dispatch(loadDemo(props,load)),
     loadGround: (vecId,props) => dispatch(loadGround(vecId,props)),
+    setModelLayer: (layer) => dispatch(setModelLayer(layer)),
     setModelRuntimeInfo:(modelId,info) => dispatch(setModelRuntimeInfo(modelId,info))
   };
 };

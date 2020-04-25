@@ -8,67 +8,69 @@ window.mergin_mode = {
 	mixers:[]
 }
 const initialState = {
-	layers:[
-	  {
-	    key: 'models',
-	    title: 'Models',
-	    checkable:false,
-	    selectable:true,
-	    icon:<span className="layer-icon"><i className="far fa-folder"></i></span>,
-	    children: [
-	    ],
-	  },
-	  {
-	    key: 'scene',
-	    title: 'Scene',
-	    checkable:false,
-	    selectable:false,
-	    icon:<span className="layer-icon"><i className="far fa-folder"></i></span>,
-	    children: [
-	      {
-	        key: 'background',
-	        title: 'Background',
-	        checkable:false,
-	   	    icon:<span className="layer-icon"><i className="far fa-folder"></i></span>,
-	        children: [
-	        { key: 'background-color', title: 'Color',icon:<span className="layer-icon"><i className="fas fa-palette"></i></span>},
-	        { key: 'background-image', title: 'Image',icon:<span className="layer-icon"><i className="far fa-file-image"></i></span> },
-	        { key: 'background-video', title: 'Video',icon:<span className="layer-icon"><i className="far fa-file-video"></i></span> }
-	      ] },
-	      {
-	        key: 'ground',
-	        title: 'Ground',
-	        checkable:false,
-   		    icon:<span className="layer-icon"><i className="far fa-folder"></i></span>,
-   		    // switcherIcon:<span className="layer-icon switch-icon"><i className="fas fa-chevron-right"></i></span>,
+	layers:{
+		checked:["background-color","background-image","ground-grid","ground-color"],
+		tree:[
+		  {
+		    key: 'models',
+		    title: 'Models',
+		    checkable:false,
+		    selectable:true,
+		    icon:<span className="layer-icon"><i className="far fa-folder"></i></span>,
+		    children: [
+		    ],
+		  },
+		  {
+		    key: 'scene',
+		    title: 'Scene',
+		    checkable:false,
+		    selectable:false,
+		    icon:<span className="layer-icon"><i className="far fa-folder"></i></span>,
+		    children: [
+		      {
+		        key: 'background',
+		        title: 'Background',
+		        checkable:false,
+		   	    icon:<span className="layer-icon"><i className="far fa-folder"></i></span>,
+		        children: [
+		        { key: 'background-color', title: 'Color',icon:<span className="layer-icon"><i className="fas fa-palette"></i></span>},
+		        { key: 'background-image', title: 'Image',icon:<span className="layer-icon"><i className="far fa-file-image"></i></span> },
+		        { key: 'background-video', title: 'Video',icon:<span className="layer-icon"><i className="far fa-file-video"></i></span> }
+		      ] },
+		      {
+		        key: 'ground',
+		        title: 'Ground',
+		        checkable:false,
+	   		    icon:<span className="layer-icon"><i className="far fa-folder"></i></span>,
+	   		    // switcherIcon:<span className="layer-icon switch-icon"><i className="fas fa-chevron-right"></i></span>,
 
-	        selectable:false,
-	        children: [
-	          { key: 'ground-color', title: 'Color',icon:<span className="layer-icon"><i className="fas fa-palette"></i></span>},
-	          { key: 'ground-image', title: 'Image' ,icon:<span className="layer-icon"><i className="far fa-file-image"></i></span>},
-	          { key: 'ground-vertices', title: 'Vertices' ,icon:<span className="layer-icon"><i className="fas fa-mountain"></i></span>},
-	          { key: 'ground-grid', title: 'Grid' ,icon:<span className="layer-icon"><i className="fab fa-slack-hash"></i></span>}
-	        ],
-	      },
-	      {
-	        key: 'vector-layers',
-	        title: 'Vector Layers',
-	   	    icon:<span className="layer-icon"><i className="far fa-folder"></i></span>,
-	        checkable:false,
-	        selectable:false,
-	        children: []
-	      },
-	      {
-	        key: 'model-layers',
-	        title: 'Model Layers',
-	   	    icon:<span className="layer-icon"><i className="far fa-folder"></i></span>,
-	        checkable:false,
-	        selectable:false,
-	        children: []
-	      },
-	    ],
+		        selectable:false,
+		        children: [
+		          { key: 'ground-color', title: 'Color',icon:<span className="layer-icon"><i className="fas fa-palette"></i></span>},
+		          { key: 'ground-image', title: 'Image' ,icon:<span className="layer-icon"><i className="far fa-file-image"></i></span>},
+		          { key: 'ground-vertices', title: 'Vertices' ,icon:<span className="layer-icon"><i className="fas fa-mountain"></i></span>},
+		          { key: 'ground-grid', title: 'Grid' ,icon:<span className="layer-icon"><i className="fab fa-slack-hash"></i></span>}
+		        ],
+		      },
+		      {
+		        key: 'vector-layers',
+		        title: 'Vector Layers',
+		   	    icon:<span className="layer-icon"><i className="far fa-folder"></i></span>,
+		        checkable:false,
+		        selectable:false,
+		        children: []
+		      },
+		      {
+		        key: 'model-layers',
+		        title: 'Model Layers',
+		   	    icon:<span className="layer-icon"><i className="far fa-folder"></i></span>,
+		        checkable:false,
+		        selectable:false,
+		        children: []
+		      },
+		    ],
 	  },
-	],
+	]},
 	scene:{	},
 	plane:{
 		id:null,
@@ -143,6 +145,10 @@ const api = (state = initialState, action) => {
 	  			title:titles[action.section] || null
 	  		})
 	  	});
+	case "SET_KEYS":
+	  	return Object.assign({},state,{
+	  		keys:action.keys,
+	  	});
 	case "SET_SCENE":
 	  	return Object.assign({},state,{
 	  		scene:action.scene,
@@ -161,7 +167,7 @@ const api = (state = initialState, action) => {
 		  	return newState;}
 	case "SET_LAYERS":
 		return Object.assign( {},state,{
-			layers: action.layers
+			layers: {tree:[...action.layers.tree],checked:[...action.layers.checked]}
 	  	});
 	case "SET_BACKGROUND_COLOR":
 		return Object.assign( {},state,{
