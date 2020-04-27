@@ -116,6 +116,9 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
         controls.minDistance = 1;
         controls.maxDistance = 1000;
         controls.maxPolarAngle = Math.PI / 2;
+        controls.rotateSpeed = 0.8;
+        controls.panSpeed = 0.8;
+        controls.zoomSpeed = 0.8;
 
         
 
@@ -173,11 +176,11 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
         //   scene.add( mesh );
         // }
         // lights
-        var light = new THREE.DirectionalLight( 0xffffff );
-        light.position.set( 1, 1, 50 );
+        // var light = new THREE.DirectionalLight( 0xffffff );
+        // light.position.set( 1, 1, 50 );
         
-        var light = new THREE.HemisphereLight( 0xffffbb, 0x080820, 1 );
-        scene.add( light );
+        // var light = new THREE.HemisphereLight( 0x0000ff, 0x00ff00, 0.6 ); 
+        // scene.add( light );
         // light.shadow = {
         //   camera: {
         //     near: 0.5,
@@ -194,17 +197,83 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
         // var lhelper = new THREE.DirectionalLightHelper( light, 5 );
         // scene.add( lhelper );
 
-        var light = new THREE.AmbientLight( 0xffffff ); // soft white light
+        // var light = new THREE.AmbientLight( 0xffffff ); // soft white light
+        // scene.add( light );
+
+
+        var light = new THREE.AmbientLight( 0x404040,1 ); // soft white light
         scene.add( light );
 
 
-        var light = new THREE.AmbientLight( 0x404040,2 ); // soft white light
-        scene.add( light );
+         var hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 1 );
+            hemiLight.color.setHSL( 0.6,  0.5,0.75 );
+            hemiLight.groundColor.setHSL( 0.095, 0.5, 0.5 );
+            hemiLight.position.set( 0, 0,50 );
+            scene.add( hemiLight );
 
+            var dirLight = new THREE.DirectionalLight( 0xffffff, 1 );
+            window.dirLight = dirLight;
+            dirLight.position.set( 1,  -1, 1 );
+            dirLight.position.multiplyScalar( 50);
+            dirLight.name = "dirlight";
+            // dirLight.shadowCameraVisible = true;
+
+            scene.add( dirLight );
+
+            dirLight.castShadow = true;
+            dirLight.shadowMapWidth = dirLight.shadowMapHeight = 1024*2;
+
+            var d = 300;
+
+            dirLight.shadowCameraLeft = -d;
+            dirLight.shadowCameraRight = d;
+            dirLight.shadowCameraTop = d;
+            dirLight.shadowCameraBottom = -d;
+
+            dirLight.shadowCameraFar = 3500;
+            dirLight.shadowBias = -0.0001;
+            dirLight.shadowDarkness = 0.35;
+
+        // LIGHTS
+
+        // var hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.6 );
+        // hemiLight.color.setHSL( 0.6,  0.6,1 );
+        // hemiLight.groundColor.setHSL( 0.095,  0.75,1 );
+        // hemiLight.position.set( 0,  0,50 );
+        // scene.add( hemiLight );
+
+        // var hemiLightHelper = new THREE.HemisphereLightHelper( hemiLight, 10 );
+        // scene.add( hemiLightHelper );
+
+        //
+
+        // var dirLight = new THREE.DirectionalLight( 0xffffff, 1 );
+        // dirLight.color.setHSL( 0.1, 0.95, 1 );
+        // dirLight.position.set( - 1, 1,1.75, );
+        // dirLight.position.multiplyScalar( 30 );
+        // scene.add( dirLight );
+
+        // dirLight.castShadow = true;
+
+        // dirLight.shadow.mapSize.width = 2048;
+        // dirLight.shadow.mapSize.height = 2048;
+
+        // var d = 50;
+
+        // dirLight.shadow.camera.left = - d;
+        // dirLight.shadow.camera.right = d;
+        // dirLight.shadow.camera.top = d;
+        // dirLight.shadow.camera.bottom = - d;
+
+        // dirLight.shadow.camera.far = 3500;
+        // dirLight.shadow.bias = - 0.0001;
+
+        // var dirLightHeper = new THREE.DirectionalLightHelper( dirLight, 10 );
+        // scene.add( dirLightHeper );
         
 
-        var axesHelper = new THREE.AxesHelper( 5 );
-        AxesScene.add( axesHelper );
+        // var axesHelper = new THREE.AxesHelper( 5 );
+        // AxesScene.add( axesHelper );
         
         // var light = new THREE.DirectionalLight( 0x002288 );
         // light.position.set( - 0, - 0, - 100 );
@@ -337,10 +406,10 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
               if(!newActiveRow) {
                   const startActiveRow = window.mergin_mode.vectors.data.filter(v=>v.id == model.vectorId)[0].array[0][0];
 
-                  model.mesh.position.set(startActiveRow[0],startActiveRow[1],startActiveRow[2]);
+                  // model.mesh.position.set(startActiveRow[0],startActiveRow[1],startActiveRow[2]);
                   setModelRuntimeInfo(model.id,{animating:false,activeRow:0})
               } else {
-                  model.mesh.position.set(newActiveRow[0],newActiveRow[1],newActiveRow[2]);
+                  // model.mesh.position.set(newActiveRow[0],newActiveRow[1],newActiveRow[2]);
                   setModelRuntimeInfo(model.id,{animating:true,activeRow:activeRow + 1})
                   // model.mesh.rotation.set(model.mesh.rotation.x,model.mesh.rotation.y,newActiveRow[3]/63.6619772367581)
                   // model.mesh.rotation.y = (-newActiveRow[3] + 200)/63.6619772367581
@@ -352,7 +421,7 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
                   model.mesh.rotateOnWorldAxis(axisZ, - (400 - activeRowData[3] + newActiveRow[3])/63.6619772367581);
               }
             }
-            console.log(model.mesh.position)
+            // console.log(model.mesh.position)
             
           }
         })
@@ -363,7 +432,7 @@ export default function	createWorld(camera,controls,scene,renderer,pointer,parti
       animate();
        
       window.addEventListener( 'resize', onWindowResize, false );
-      document.getElementById("three-map").addEventListener( 'mousemove', onMouseMove, false );
+      document.getElementById("three-map").addEventListener( 'click', onMouseMove, false );
 
       partials = {plane,pointer,sky,gridHelper};
       return {camera,controls,scene,renderer,pointer,partials,loaders,onWindowResize}

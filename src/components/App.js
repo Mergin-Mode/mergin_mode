@@ -62,13 +62,16 @@ function App(props) {
   };
   const [menuOpen, setMenuOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
+  const [demoLoaded, setDemoLoaded] = useState(false);
+  const [loadingGear, setLoadingGear] = useState(false);
   const [files, setFiles] = useState([])
   const [elements, setElements] = useState({
     mixers:[], camera:{}, controls:{}, scene:{}, renderer:{},pointer:{}, partials:{},loaders:{},onWindowResize:()=>{}
   })
   const toggleModal = ()=>setModalOpen(!modalOpen);
   const toggleMenu = () => setMenuOpen(!menuOpen);
-
+  const toggleLoaded = () => setDemoLoaded(!demoLoaded);
+  const toggleLoadingGear = (b) => setLoadingGear(b);
   const  loadGLTFModel = (file,resolve) => {
     const {name,size,url} = file[0];
     const {scene,loaders} = elements;
@@ -164,12 +167,12 @@ function App(props) {
         //   action.play();  
         // }
         
-        object.traverse( child => {
-          if ( child.isMesh ) {
-            child.castShadow = true;
-            child.receiveShadow = true;
-          }
-        } );
+        // object.traverse( child => {
+        //   if ( child.isMesh ) {
+        //     child.castShadow = true;
+        //     child.receiveShadow = true;
+        //   }
+        // } );
         props.loadModel({name,size,object});
         setModalOpen(false);       
         const newLayers = {...props.layers};
@@ -312,8 +315,25 @@ function App(props) {
                 </DropdownMenu>
               </UncontrolledDropdown>
               <NavItem>
-                <NavLink onClick={()=>props.loadDemo(props,load)}>Load Demo</NavLink>
-            </NavItem>
+                <NavLink disabled = {demoLoaded} onClick={()=>{
+                  if(!demoLoaded) {
+                    toggleLoaded();
+                    toggleLoadingGear(true);
+                    props.loadDemo(props,load,toggleLoadingGear)
+                    .then(e=>
+                      toggleLoadingGear(false)
+                    )
+                    .catch(e=>
+                      toggleLoadingGear(false)
+                    )
+                  }
+                }}>Load Demo</NavLink>
+                </NavItem>
+                <NavItem>
+                  <NavLink>
+                    <a href = "https://youtube.com" target="_blank">Youtube Video</a>
+                  </NavLink>
+              </NavItem>
             </Nav>
             <NavbarText>
                 <NavLink href="https://github.com/prieston/mergin_mode" target="_blank">
@@ -341,6 +361,16 @@ function App(props) {
         
 
       </main>
+      <div style={{visibility:loadingGear ? "visible" : "hidden"}} className="loading-demo">
+      <div>
+        <div><i class="fas fa-cog"></i></div>
+          <div>Loading Demo...</div>
+          <div>This might take a few minutes depending on your internet connection.</div>
+          <div>Meanwhile you can view a youtube demo by clicking the link below</div>
+          <div><a href = "https://youtube.com" target="_blank">Youtube Video</a></div>
+        </div>
+
+      </div>
       <Modal
         isOpen={modalOpen}
         onRequestClose={()=>setModalOpen(!modalOpen)}

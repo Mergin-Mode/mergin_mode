@@ -154,8 +154,11 @@ export const addModel = (options, props)=> {
 
       mesh.scale.set(sca.x,sca.y,sca.z);
       mesh.position.set(...theVector.array[0][0]);
-      mesh.castShadow = true;
-      mesh.receiveShadow = true;
+       mesh.traverse(function (node){
+            if (node.isMesh) {
+              node.castShadow = true;
+              node.receiveShadow = true;
+            }})
       group.add(mesh);
       props.setModelLayer({
         id:Date.now(),
@@ -204,7 +207,11 @@ export const addModel = (options, props)=> {
                 new_mesh.setMatrixAt( i, transform.matrix );
 
             }
-
+            new_mesh.traverse(function (node){
+            if (node.isMesh) {
+              node.castShadow = true;
+              node.receiveShadow = true;
+            }})
             group.add( new_mesh )
       } else {
 
@@ -216,6 +223,8 @@ export const addModel = (options, props)=> {
               node.material.transparent = true;
               node.material.opacity = 1;
               node.material.needsUpdate = true;
+              node.castShadow = true;
+              node.receiveShadow = true;
             }})
          } else {
            // var modifier = new SimplifyModifier();
@@ -224,6 +233,8 @@ export const addModel = (options, props)=> {
               node.material.transparent = true;
               node.material.opacity = 1;
               node.material.needsUpdate = true;
+              node.castShadow = true;
+              node.receiveShadow = true;
             }})
          }
           
@@ -252,8 +263,7 @@ export const addModel = (options, props)=> {
           mesh.scale.set(sca.x,sca.y,sca.z);
         
           mesh.position.set(...r);
-          mesh.castShadow = true;
-          mesh.receiveShadow = true;
+          
           // if(theVector.name.includes("loutro")){
           //   mesh.traverse(function (node){
           //   if (node.isMesh) {
@@ -269,6 +279,7 @@ export const addModel = (options, props)=> {
           // }
           window.meshes = window.meshes || []
           window.meshes.push (mesh);
+          window.mesh = mesh;
           group.add(mesh)
         });
       }
@@ -315,7 +326,7 @@ export const loadDemo =  function(props,load){
       {name:"anime-path-4.csv",size:"0",url:process.env.PUBLIC_URL + "/demo/anime-path-4.csv"},
     ]
 
-    load(urls).then(()=>{
+    return load(urls).then(()=>{
       //all loaded
       const newState = getState();
       let d, vector, rotation, scale;
@@ -477,7 +488,8 @@ export const loadDemo =  function(props,load){
         coords:newState.api.plane.coords,
         state:newState.api,
         scene:newState.api.scene
-      })
+      });
+      return Promise.resolve(true);
     });
   }
 }
