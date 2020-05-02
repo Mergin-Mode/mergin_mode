@@ -331,7 +331,7 @@ function App(props) {
                 </NavItem>
                 <NavItem>
                   <NavLink>
-                    <a href = "https://youtu.be/aaurmX8Mq5U" target="_blank">Youtube Video</a>
+                    <a href = "https://youtu.be/fWYlC6shSgw" target="_blank">Youtube Video</a>
                   </NavLink>
               </NavItem>
             </Nav>
@@ -367,7 +367,7 @@ function App(props) {
           <div>Loading Demo...</div>
           <div>This might take a few minutes depending on your internet connection.</div>
           <div>Meanwhile you can view a youtube demo by clicking the link below</div>
-          <div><a href = "https://youtu.be/aaurmX8Mq5U" target="_blank">Youtube Video</a></div>
+          <div><a href = "https://youtu.be/fWYlC6shSgw" target="_blank">Youtube Video</a></div>
         </div>
 
       </div>
